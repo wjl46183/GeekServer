@@ -355,3 +355,4 @@ MigrationBackup/
 /UnityDemo/Temp
 /.idea
 /database
+docker/db/*
