@@ -9,15 +9,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\bin\app_debug</OutputPath>
+    <OutputPath>../bin/app_debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\bin\app</OutputPath>
+    <OutputPath>../bin/app</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Template\State.liquid" />
+    <None Remove="Template/State.liquid" />
   </ItemGroup>
 
 
@@ -34,8 +34,8 @@
     <PackageReference Include="Scriban" Version="5.4.4" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(PKGScriban)\lib\netstandard2.0\Scriban.dll" Visible="false" />
-    <EmbeddedResource Include="$(ProjectPath)\..\Template\Agent.liquid" Visible="true" />
+    <EmbeddedResource Include="$(PKGScriban)/lib/netstandard2.0/Scriban.dll" Visible="false" />
+    <EmbeddedResource Include="$(ProjectPath)/../Template/Agent.liquid" Visible="true" />
   </ItemGroup>
 
 </Project>
