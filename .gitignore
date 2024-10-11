@@ -357,3 +357,5 @@ MigrationBackup/
 /database
 docker/db/*
 .DS_Store
+Geek.Server.Generate/Configs/exportScript/
+Geek.Server.Generate/exportData/

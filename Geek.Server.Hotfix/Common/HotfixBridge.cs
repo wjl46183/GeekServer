@@ -35,7 +35,7 @@ namespace Server.Logic.Common
             await HttpServer.Start(Settings.HttpPort);
 
             Log.Info("load config data");
-            (bool success, string msg) = GameDataManager.ReloadAll();
+            (bool success, string msg) = ConfigManager.LoadTables();
             if (!success)
                 throw new Exception($"载入配置表失败... {msg}");
 
