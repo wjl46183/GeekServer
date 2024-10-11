@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Geek.Server.App\Geek.Server.App.csproj" />
+    <ProjectReference Include="..\Geek.Server.Main\Geek.Server.Main.csproj" />
     <ProjectReference Include="..\Geek.Server.CodeGenerator\Geek.Server.CodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

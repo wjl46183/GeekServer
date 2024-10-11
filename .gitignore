@@ -356,3 +356,4 @@ MigrationBackup/
 /.idea
 /database
 docker/db/*
+.DS_Store
