@@ -50,9 +50,9 @@ public class ConfigManager
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    private static ByteBuf LoadOffsetByteBuf(string file)
+    private static ByteBuf LoadOffsetByteBuf(int fileIndex)
     {
-        var a = File.ReadAllBytes("exportData/offset/" + file + ".bytes");
+        var a = File.ReadAllBytes("exportData/offset/" + cfg.Tables.TbNames[fileIndex] + ".bytes");
         return new ByteBuf(a);
     }
 
@@ -63,8 +63,9 @@ public class ConfigManager
     /// <param name="offset"></param>
     /// <param name="length"></param>
     /// <returns></returns>
-    private static ByteBuf ByteBufLoader(string file, int offset, int length)
+    private static ByteBuf ByteBufLoader(int fileIndex, int offset, int length)
     {
+        string file = cfg.Tables.TbNames[fileIndex];
         if (!fileStreams.TryGetValue(file, out var fs))
         {
             fs = new FileStream("exportData/bytes/" + file + ".bytes", FileMode.Open);
