@@ -1,14 +1,14 @@
-﻿using Geek.Server.Core.Serialize;
-using MessagePack;
+﻿using System.Buffers;
+
+using MemoryPack;
 using MongoDB.Bson.Serialization.Attributes;
 using NLog;
 
 namespace Geek.Server.Core.Storage
 {
-
-    [MessagePackObject(true)]
-    [BsonIgnoreExtraElements(true,Inherited =true)]
-    public abstract class CacheState
+    [MemoryPackable]
+    [BsonIgnoreExtraElements(true, Inherited = true)]
+    public partial class CacheState
     {
         public const string UniqueId = nameof(Id);
 
@@ -19,7 +19,8 @@ namespace Geek.Server.Core.Storage
             return $"{base.ToString()}[Id={Id}]";
         }
 
-        #region hash 
+        #region hash
+
         private StateHash stateHash;
 
         public void AfterLoadFromDB()
@@ -37,12 +38,16 @@ namespace Geek.Server.Core.Storage
         {
             stateHash.AfterSaveToDB();
         }
+
         #endregion
     }
 
 
     public class StateHash
     {
+        private static readonly AsyncLocal<ArrayBufferWriter<byte>> _bufferWriter =
+            new AsyncLocal<ArrayBufferWriter<byte>>();
+
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private CacheState State { get; }
         private UInt128 CurrentHash { get; set; }
@@ -71,64 +76,34 @@ namespace Geek.Server.Core.Storage
             DBHash = CurrentHash;
         }
 
-        public class HashStream : Stream
-        {
-            public ulong hash = 3074457345618258791ul;
-            public override bool CanRead => false;
-
-            public override bool CanSeek => false;
-
-            public override bool CanWrite => true;
-
-            public override long Length => 0;
-
-            public override long Position { set; get; }
-
-            public override void Flush()
-            {
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                return 0;
-            }
-
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                return 0;
-            }
-
-            public override void SetLength(long value)
-            {
-
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                Position += count;
-                for (int i = offset; i < count; i++)
-                {
-                    hash += buffer[i];
-                    hash *= 3074457345618258799ul;
-                }
-            }
-        }
-
-        unsafe private UInt128 GetHash()
+        private UInt128 GetHash()
         {
             if (State == null)
                 return 0;
-            try
+
+            // 尝试获取或创建 ArrayBufferWriter<byte> 实例
+            var bufferWriter = _bufferWriter.Value;
+            if (bufferWriter == null)
             {
-                var hashSteam = new HashStream();
-                Serializer.Serialize(hashSteam, State);
-                return new UInt128(hashSteam.hash, (ulong)hashSteam.Position);
+                bufferWriter = new ArrayBufferWriter<byte>();
+                _bufferWriter.Value = bufferWriter;
             }
-            catch (Exception e)
+            else
             {
-                Log.Error($"GetHash异常,type:[{State.GetType().FullName}]:{e.Message}");
+                bufferWriter.Clear();
             }
-            return 0;
+
+            MemoryPackSerializer.Serialize(bufferWriter, State);
+            var buffer = bufferWriter.WrittenSpan;
+
+            ulong hash = 3074457345618258791ul;
+            foreach (var b in buffer)
+            {
+                hash += b;
+                hash *= 3074457345618258799ul;
+            }
+
+            return new UInt128(hash, (ulong)buffer.Length);
         }
     }
 }

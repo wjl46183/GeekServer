@@ -47,7 +47,7 @@ namespace Geek.Server.App
                 LogManager.Shutdown();
                 AppExitHandler.Kill();
                 Console.WriteLine($"退出程序");
-                Process.GetCurrentProcess().Kill(true);
+                // Process.GetCurrentProcess().Kill(true);
             });
             ShutDownTask.Wait();
         }

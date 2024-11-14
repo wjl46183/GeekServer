@@ -1,19 +1,18 @@
 //auto generated, do not modify it
 
-using MessagePack;
+using MemoryPack;
 using System.Collections.Generic;
-
+using Geek.Server.Core.Net;
 namespace Geek.Server.Proto
 {
-	[MessagePackObject(true)]
-	public class ResItemChange : Message
+	[MemoryPackable]
+	public partial class ResItemChange : Message
 	{
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int Sid = 901279609;
 
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int MsgID = Sid;
-		[IgnoreMember]
 		public override int MsgId => MsgID;
 
         /// <summary>

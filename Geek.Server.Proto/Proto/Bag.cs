@@ -1,5 +1,5 @@
 ﻿
-using MessagePack;
+using MemoryPack;
 using System.Collections.Generic;
 
 namespace Geek.Server.Proto
@@ -8,16 +8,16 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 请求背包数据
     /// </summary>
-    [MessagePackObject(true)]
-    public class ReqBagInfo : Message
+    [MemoryPackable]
+    public partial class ReqBagInfo : Message
     {
     }
 
     /// <summary>
     /// 返回背包数据
     /// </summary>
-    [MessagePackObject(true)]
-    public class ResBagInfo : Message
+    [MemoryPackable]
+    public partial class ResBagInfo : Message
     {
         public Dictionary<int, long> ItemDic { get; set; } = new Dictionary<int, long>();
     }
@@ -25,8 +25,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 请求背包数据
     /// </summary>
-    [MessagePackObject(true)]
-    public class ReqComposePet : Message
+    [MemoryPackable]
+    public partial class ReqComposePet : Message
     {
         /// <summary>
         /// 碎片id
@@ -37,8 +37,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 返回背包数据
     /// </summary>
-    [MessagePackObject(true)]
-    public class ResComposePet : Message
+    [MemoryPackable]
+    public partial class ResComposePet : Message
     {
         /// <summary>
         /// 合成宠物的Id
@@ -50,8 +50,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 使用道具
     /// </summary>
-    [MessagePackObject(true)]
-    public class ReqUseItem : Message
+    [MemoryPackable]
+    public partial class ReqUseItem : Message
     {
         /// <summary>
         /// 道具id
@@ -62,8 +62,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 出售道具
     /// </summary>
-    [MessagePackObject(true)]
-    public class ReqSellItem : Message
+    [MemoryPackable]
+    public partial class ReqSellItem : Message
     {
         /// <summary>
         /// 道具id
@@ -71,8 +71,8 @@ namespace Geek.Server.Proto
         public int ItemId { get; set; }
     }
 
-    [MessagePackObject(true)]
-    public class ResItemChange : Message
+    [MemoryPackable]
+    public partial class ResItemChange : Message
     {
         /// <summary>
         /// 变化的道具

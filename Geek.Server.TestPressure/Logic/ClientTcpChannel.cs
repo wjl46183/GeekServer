@@ -1,6 +1,6 @@
 ﻿using Geek.Server.Core.Net;
-using Geek.Server.Core.Serialize;
-using MessagePack;
+
+using MemoryPack;
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Net.Sockets;
@@ -99,7 +99,7 @@ namespace Geek.Server.TestPressure.Logic
             }
             else
             {
-                var message = MessagePackSerializer.Deserialize<Message>(payload.Slice(4));
+                var message = MemoryPackSerializer.Deserialize<Message>(payload.Slice(4));
 #if UNITY_EDITOR
                 Debug.Log("收到消息:" + MessagePackSerializer.SerializeToJson(message));
 #endif
@@ -120,7 +120,7 @@ namespace Geek.Server.TestPressure.Logic
         {
             if (IsClose())
                 return;
-            var bytes = Serializer.Serialize(msg);
+            var bytes = MemoryPackSerializer.Serialize(msg);
             int len = 4 + 8 + 4 + 4 + bytes.Length;
             Span<byte> target = stackalloc byte[len];
 

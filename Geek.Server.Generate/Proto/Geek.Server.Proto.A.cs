@@ -1,13 +1,13 @@
 //auto generated, do not modify it
 
-using MessagePack;
+using MemoryPack;
 
 namespace Geek.Server.Proto
 {
-	[MessagePackObject(true)]
-	public class A 
+	[MemoryPackable]
+	public partial class A 
 	{
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int Sid = 1250601847;
 
 

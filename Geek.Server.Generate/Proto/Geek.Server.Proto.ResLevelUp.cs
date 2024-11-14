@@ -1,18 +1,17 @@
 //auto generated, do not modify it
 
-using MessagePack;
-
+using MemoryPack;
+using Geek.Server.Core.Net;
 namespace Geek.Server.Proto
 {
-	[MessagePackObject(true)]
-	public class ResLevelUp : Message
+	[MemoryPackable]
+	public partial class ResLevelUp : Message
 	{
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int Sid = 1587576546;
 
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int MsgID = Sid;
-		[IgnoreMember]
 		public override int MsgId => MsgID;
 
         /// <summary>

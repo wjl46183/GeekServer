@@ -1,5 +1,5 @@
 ﻿
-using MessagePack;
+using MemoryPack;
 
 namespace Geek.Server.Proto
 {
@@ -9,26 +9,26 @@ namespace Geek.Server.Proto
     }
 
 
-    [MessagePackObject(true)]
-    public struct TestStruct
+    [MemoryPackable]
+    public partial struct TestStruct
     {
         public int Age { get; set; }
         public string Name { get; set; }
     }
 
-    [MessagePackObject(true)]
-    public class A
+    [MemoryPackable]
+    public partial class A
     {
         public int Age { get; set; }
         public TestEnum E { get; set; } = TestEnum.B;
         public TestStruct TS { get; set; }
     }
 
-    [MessagePackObject(true)]
-    public class B : A
+    [MemoryPackable]
+    public partial class B : A
     {
         public string Name { get; set; }
-        [IgnoreMember]
+        [MemoryPackIgnore]
         public string Test { get; set; }
     }
 
@@ -36,8 +36,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 玩家基础信息
     /// </summary>
-    [MessagePackObject(true)]
-    public class UserInfo
+    [MemoryPackable]
+    public partial class UserInfo
     {
         /// <summary>
         /// 角色名
@@ -64,8 +64,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 请求登录
     /// </summary>
-    [MessagePackObject(true)]
-    public class ReqLogin : Message
+    [MemoryPackable]
+    public partial class ReqLogin : Message
     {
         public string UserName { get; set; }
         public string Platform { get; set; }
@@ -78,8 +78,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 请求登录
     /// </summary>
-    [MessagePackObject(true)]
-    public class ResLogin : Message
+    [MemoryPackable]
+    public partial class ResLogin : Message
     {
         /// <summary>
         /// 登陆结果，0成功，其他时候为错误码
@@ -92,8 +92,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 等级变化
     /// </summary>
-    [MessagePackObject(true)]
-    public class ResLevelUp : Message
+    [MemoryPackable]
+    public partial class ResLevelUp : Message
     {
         /// <summary>
         /// 玩家等级
@@ -104,8 +104,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 双向心跳/收到恢复同样的消息
     /// </summary>
-    [MessagePackObject(true)]
-    public class HearBeat : Message
+    [MemoryPackable]
+    public partial class HearBeat : Message
     {
         /// <summary>
         /// 当前时间
@@ -116,8 +116,8 @@ namespace Geek.Server.Proto
     /// <summary>
     /// 客户端每次请求都会回复错误码
     /// </summary>
-    [MessagePackObject(true)]
-    public class ResErrorCode : Message
+    [MemoryPackable]
+    public partial class ResErrorCode : Message
     {
         /// <summary>
         /// 0:表示无错误
@@ -129,8 +129,8 @@ namespace Geek.Server.Proto
         public string Desc { get; set; }
     }
 
-    [MessagePackObject(true)]
-    public class ResPrompt : Message
+    [MemoryPackable]
+    public partial class ResPrompt : Message
     {
         ///<summary>提示信息类型（1Tip提示，2跑马灯，3插队跑马灯，4弹窗，5弹窗回到登陆，6弹窗退出游戏）</summary>
 		public int Type { get; set; }

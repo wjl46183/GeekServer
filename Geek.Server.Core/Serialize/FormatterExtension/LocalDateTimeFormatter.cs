@@ -1,46 +1,25 @@
-﻿using MessagePack.Formatters;
-using MessagePack;
-using System.Diagnostics;
+﻿using MemoryPack;
 using System;
-
-namespace d
+namespace FormatterExtension
 {
-    public class LocalDateTimeFormatter : IMessagePackFormatter<DateTime>
+    // 注册自定义格式化器
+    //emoryPackFormatterProvider.Register<DateTime, DateTimeFormatter>();
+    public class DateTimeFormatter : MemoryPackFormatter<DateTime>
     {
-        public static readonly LocalDateTimeFormatter Instance = new LocalDateTimeFormatter();
-        private LocalDateTimeFormatter() { }
-
-        public DateTime Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
+        public override void Serialize<TBufferWriter>(ref MemoryPackWriter<TBufferWriter> writer,
+            scoped ref DateTime value)
         {
-            if (reader.NextMessagePackType == MessagePackType.Array)
-            {
-                var count = reader.ReadArrayHeader();
-                if (count != 2)
-                    throw new MessagePackSerializationException("Invalid polymorphic array count");
-                var kind = (DateTimeKind)reader.ReadByte();
-                return new DateTime(reader.ReadDateTime().Ticks, kind);
-            }
-            else
-            {
-                //本地时间
-                return new DateTime(reader.ReadDateTime().Ticks, DateTimeKind.Local);
-            }
+            // 将 DateTime 转换为 ticks 和 kind (Ticks 是 long 类型)
+            writer.WriteVarInt(value.Ticks);
+            writer.WriteVarInt((int)value.Kind);
         }
 
-        public void Serialize(ref MessagePackWriter writer, DateTime value, MessagePackSerializerOptions options)
+        public override void Deserialize(ref MemoryPackReader reader, scoped ref DateTime value)
         {
-            if (value.Kind == DateTimeKind.Local)
-            {
-                //这里写入的时候 加个时间偏移,因为messagepack会转成utc，这里相当于做个抵消，同时也是为了ui预览的时候能看到正确时间
-                writer.Write(value.Add(TimeZoneInfo.Local.BaseUtcOffset));
-            }
-            else
-            {
-                //如果是非local时间，需要加额外标志
-                writer.WriteArrayHeader(2);
-                writer.Write((byte)value.Kind);
-                writer.Write(value);
-            }
+            // 从 ticks 和 kind 读取 DateTime
+            long ticks = reader.ReadVarIntInt64();
+            DateTimeKind kind = (DateTimeKind)reader.ReadVarIntInt32();
+            value = new DateTime(ticks, kind);
         }
     }
 }

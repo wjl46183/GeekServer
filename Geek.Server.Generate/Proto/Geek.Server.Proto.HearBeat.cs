@@ -1,18 +1,17 @@
 //auto generated, do not modify it
 
-using MessagePack;
-
+using MemoryPack;
+using Geek.Server.Core.Net;
 namespace Geek.Server.Proto
 {
-	[MessagePackObject(true)]
-	public class HearBeat : Message
+	[MemoryPackable]
+	public partial class HearBeat : Message
 	{
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int Sid = 1575482382;
 
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int MsgID = Sid;
-		[IgnoreMember]
 		public override int MsgId => MsgID;
 
         /// <summary>

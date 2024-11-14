@@ -1,15 +1,15 @@
-﻿using MessagePack; 
+﻿using MemoryPack; 
 
 namespace ClientProto
 { 
 
-    [MessagePackObject(true)]
-    public class NetConnectMessage : Message
+    [MemoryPackable]
+    public partial class NetConnectMessage : Message
     { 
     }
 
-    [MessagePackObject(true)]
-    public class NetDisConnectMessage : Message
+    [MemoryPackable]
+    public partial class NetDisConnectMessage : Message
     { 
     } 
 }

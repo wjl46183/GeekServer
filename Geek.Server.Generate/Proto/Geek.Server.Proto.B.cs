@@ -1,18 +1,18 @@
 //auto generated, do not modify it
 
-using MessagePack;
+using MemoryPack;
 
 namespace Geek.Server.Proto
 {
-	[MessagePackObject(true)]
-	public class B : Geek.Server.Proto.A
+	[MemoryPackable]
+	public partial class B : Geek.Server.Proto.A
 	{
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public new const int Sid = -899515946;
 
 
         public string Name { get; set; }
-        [IgnoreMember]
+        [MemoryPackIgnore]
         public string Test { get; set; }
 	}
 }

@@ -11,7 +11,12 @@ namespace Geek.Server.Core.Actors.Impl
         internal long CurChainId { get; set; }
         internal long Id { get; init; }
         public const int TIME_OUT = 13000;
-
+        
+        /// <summary>
+        /// 在并发下实现了队列执行，避免阻塞主线程
+        /// </summary>
+        private ActionBlock<WorkWrapper> ActionBlock { get; init; }
+        
         public WorkerActor(long id = 0)
         {
             if (id == 0)
@@ -35,7 +40,6 @@ namespace Geek.Server.Core.Actors.Impl
             }
         }
 
-        private ActionBlock<WorkWrapper> ActionBlock { get; init; }
 
         /// <summary>
         /// chainId == 0说明是新的异步环境

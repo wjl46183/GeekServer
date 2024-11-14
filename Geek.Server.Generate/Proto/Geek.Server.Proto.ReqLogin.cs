@@ -1,18 +1,17 @@
 //auto generated, do not modify it
 
-using MessagePack;
-
+using MemoryPack;
+using Geek.Server.Core.Net;
 namespace Geek.Server.Proto
 {
-	[MessagePackObject(true)]
-	public class ReqLogin : Message
+	[MemoryPackable]
+	public partial class ReqLogin : Message
 	{
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int Sid = 1267074761;
 
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int MsgID = Sid;
-		[IgnoreMember]
 		public override int MsgId => MsgID;
 
         public string UserName { get; set; }

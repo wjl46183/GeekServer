@@ -1,94 +1,106 @@
-﻿using FormatterExtension;
-using MessagePack;
-using MessagePack.Formatters;
-using MessagePack.Resolvers;
-using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
+using MemoryPack;
+using MemoryPack.Formatters;
 
 namespace PolymorphicMessagePack
 {
-    public sealed class PolymorphicResolver : IFormatterResolver
+    public sealed class PolymorphicResolver
     {
         public static PolymorphicResolver Instance { get; private set; } = new PolymorphicResolver();
-
-        static IFormatterResolver InnerResolver;
-        static List<IFormatterResolver> innerResolver = new()
-        {
-               FormatterExtensionResolver.Instance,
-               BuiltinResolver.Instance,
-               StandardResolver.Instance,
-               ContractlessStandardResolver.Instance
-        };
-
-        //先调用此函数注册需要的resolver，然后再调用init，比如客户端需要注册proto和配置表的resolver
-        public static void AddInnerResolver(IFormatterResolver resolver, int index = 0)
-        {
-            if (innerResolver.IndexOf(resolver) < 0)
-            {
-                innerResolver.Insert(index, resolver);
-            }
-        }
 
         public void Init()
         {
             PolymorphicTypeMapper.RegisterCore();
-            StaticCompositeResolver.Instance.Register(innerResolver.ToArray());
-            InnerResolver = StaticCompositeResolver.Instance;
-            MessagePackSerializer.DefaultOptions = new MessagePackSerializerOptions(PolymorphicResolver.Instance).WithCompression(MessagePackCompression.Lz4Block);
+
+            // 注册多态类型
+            RegisterAllPolymorphicTypes(GetGeekServerAssemblies());
         }
 
-        private readonly ConcurrentDictionary<Type, PolymorphicDelegate> _innerFormatterCache = new ConcurrentDictionary<Type, PolymorphicDelegate>();
-
-        private PolymorphicResolver() { }
-
-        public IMessagePackFormatter<T> GetFormatter<T>()
+        public static Assembly[] GetGeekServerAssemblies()
         {
-            if (PolymorphicTypeMapper.Contains(typeof(T)))
+            // 获取当前应用程序域中加载的所有程序集
+            var allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            // 筛选出以 "Geek.Server" 开头的程序集
+            var geekServerAssemblies = allAssemblies
+                .Where(assembly =>
+                    assembly.GetName().Name.StartsWith("Geek.Server", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+
+            return geekServerAssemblies;
+        }
+
+        public static void RegisterAllPolymorphicTypes(params Assembly[] assemblies)
+        {
+            // 存储类型和其对应的ID
+            var typeIdPairs = new Dictionary<Type, List<(int, Type)>>();
+
+            foreach (var assembly in assemblies)
             {
-                return FormatterCache<T>.Formatter;
+                // 获取当前程序集中的所有类型
+                var memoryPackableTypes = assembly.GetTypes()
+                    .Where(t => t.GetCustomAttribute<MemoryPackableAttribute>() != null && !t.IsAbstract &&
+                                !t.IsInterface)
+                    .ToArray();
+
+                foreach (var type in memoryPackableTypes)
+                {
+                    // 找到该类型的基类，且基类也是MemoryPackable
+                    var baseType = type.BaseType;
+                    while (baseType != null && baseType != typeof(object))
+                    {
+                        if (baseType.GetCustomAttribute<MemoryPackableAttribute>() != null)
+                        {
+                            if (!typeIdPairs.ContainsKey(baseType))
+                            {
+                                typeIdPairs[baseType] = new List<(int, Type)>();
+                            }
+
+                            typeIdPairs[baseType].Add((typeIdPairs[baseType].Count, type));
+                            break;
+                        }
+
+                        baseType = baseType.BaseType;
+                    }
+                }
             }
 
-            return InnerResolver.GetFormatter<T>();
-        }
-
-        public void RemoveFormatterDelegateCache(Type type)
-        {
-            _innerFormatterCache.Remove(type, out _);
-        }
-
-        //Bottleneck
-        public void InnerSerialize(Type type, ref MessagePackWriter writer, object value, MessagePackSerializerOptions options)
-        {
-            GetDelegate(type).Serialize(ref writer, value, options);
-        }
-
-        //Bottleneck
-        public object InnerDeserialize(Type type, ref MessagePackReader reader, MessagePackSerializerOptions options)
-        {
-            return GetDelegate(type).Deserialize(ref reader, options);
-        }
-
-        private PolymorphicDelegate GetDelegate(Type type)
-        {
-            if (!_innerFormatterCache.TryGetValue(type, out var ploymorphicDeletegate))
+            // 注册每个基类和其派生类
+            foreach (var kvp in typeIdPairs)
             {
-                var constructedType = typeof(PolymorphicDelegate<>).MakeGenericType(type);
+                var baseType = kvp.Key;
+                (ushort Tag, Type Type)[] derivedTypes = new (ushort Tag, Type Type)[kvp.Value.Count];
 
-                ploymorphicDeletegate = (PolymorphicDelegate)Activator.CreateInstance(constructedType, InnerResolver);
+                for (int i = 0; i < kvp.Value.Count; i++)
+                {
+                    var tag = (ushort)kvp.Value[i].Item1;
+                    Type type = kvp.Value[i].Item2;
+                    derivedTypes[i] = (tag, type);
+                }
 
-                _innerFormatterCache.TryAdd(type, ploymorphicDeletegate);
-            }
+                var formatterType = typeof(DynamicUnionFormatter<>).MakeGenericType(baseType);
+                var formatter = Activator.CreateInstance(formatterType, new object[] { derivedTypes });
 
-            return ploymorphicDeletegate;
-        }
+                // Get the Register<T> method
+                var registerMethod = typeof(MemoryPackFormatterProvider).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                    .FirstOrDefault(m => m.Name == "Register" && m.IsGenericMethodDefinition);
 
-        private static class FormatterCache<T>
-        {
-            public static IMessagePackFormatter<T> Formatter;
+                if (registerMethod != null)
+                {
+                    // Make the generic method specific to the baseType
+                    var genericRegisterMethod = registerMethod.MakeGenericMethod(baseType);
 
-            static FormatterCache()
-            {
-                Formatter = new PolymorphicFormatter<T>();
+                    // Invoke the method
+                    genericRegisterMethod.Invoke(null, new object[] { formatter });
+                    Console.WriteLine($"Registered {kvp.Value.Count} types derived from {baseType.FullName}");
+                }
+                else
+                {
+                    Console.WriteLine($"Could not find generic Register method for {baseType.FullName}");
+                }
+
+                Console.WriteLine($"Registered {kvp.Value.Count} types derived from {baseType.FullName}");
             }
         }
     }

@@ -1,16 +1,20 @@
-﻿using Geek.Server.Core.Serialize;
+﻿using System.Buffers;
+
 using MessagePack;
 using PolymorphicMessagePack;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Net.WebSockets;
+using MemoryPack;
+using Newtonsoft.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Geek.Server.Core.Net.Websocket
 {
     public class WebSocketChannel : NetChannel
     {
+        private const int bufferSize = 1024 * 16;
         static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         WebSocket webSocket;
         readonly Action<Message> onMessage;
@@ -45,7 +49,7 @@ namespace Geek.Server.Core.Net.Websocket
             try
             {
                 _ = DoSend();
-                await DoRevice();
+                await DoReceive();
             }
             catch (OperationCanceledException)
             {
@@ -58,91 +62,124 @@ namespace Geek.Server.Core.Net.Websocket
 
         async Task DoSend()
         {
+            // 使用 ArrayBufferWriter 来管理缓冲区
+            var bufferWriter = new ArrayBufferWriter<byte>();
+            var closeToken = closeSrc.Token;
             try
             {
-                var array = new object[2];
+                while (!closeToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await newSendMsgSemaphore.WaitAsync(closeToken);
+
+                        if (!sendQueue.TryDequeue(out var message))
+                        {
+                            continue;
+                        }
+
+                        bufferWriter.Clear();
+                        // 写入 MsgId
+                        var msgIdBytes = BitConverter.GetBytes(message.MsgId);
+                        bufferWriter.Write(msgIdBytes);
+
+                        // 序列化 message 到 bufferWriter
+                        MemoryPackSerializer.Serialize(bufferWriter, message);
+
+                        // 获取已写入数据的内存片段
+                        var data = bufferWriter.WrittenMemory;
+
+#if DEBUG
+                        LOGGER.Info($"发送消息长度: {data.Length}, MsgId: {message.MsgId}");
+#endif
+
+                        // 发送数据
+                        await webSocket.SendAsync(data, WebSocketMessageType.Binary, true, closeToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // 操作取消异常可以忽略
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        // 记录其他异常
+                        LOGGER.Error("发送消息时出现异常: " + ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // 捕获并记录外层循环中的异常
+                LOGGER.Error("DoSend 出现异常: " + ex.Message);
+            }
+            finally
+            {
+                // 确保在退出时释放信号量
+                newSendMsgSemaphore.Release();
+            }
+        }
+
+        Message DeserializeMsg(ReadOnlySpan<byte> buffer)
+        {
+            Type type = null;
+            int typeId = BitConverter.ToInt32(buffer.Slice(0,4));
+            if (!PolymorphicTypeMapper.TryGet(typeId, out type))
+            {
+                throw new MemoryPackSerializationException($"找不到 Type Id: {typeId} 检查是否注册到： {nameof(PolymorphicTypeMapper)}");
+            }
+
+            Message msg = MemoryPackSerializer.Deserialize(type, buffer) as Message;
+            return msg;
+        }
+
+        private async Task DoReceive()
+        {
+            byte[] rentedBuffer = ArrayPool<byte>.Shared.Rent(bufferSize); // Rent an 16KB buffer
+            try
+            {
                 var closeToken = closeSrc.Token;
                 while (!closeToken.IsCancellationRequested)
                 {
-                    await newSendMsgSemaphore.WaitAsync(closeToken);
-
-                    if (!sendQueue.TryDequeue(out var message))
+                    int totalBytesReceived = 0;
+                    WebSocketReceiveResult result;
+                    do
                     {
-                        continue;
-                    }
-                    array[0] = message.MsgId;
-                    array[1] = message;
-                    //这里为了应对前端是js等不方便处理多态的情况 
-                    var data = MessagePackSerializer.Serialize(array, MessagePackSerializerOptions.Standard);
-#if DEBUG
-                    LOGGER.Info("发送消息:" + MessagePackSerializer.ConvertToJson(data));
-#endif
-                    await webSocket.SendAsync(data, WebSocketMessageType.Binary, true, closeToken);
-                }
-            }
-            catch
-            {
+                        var bufferSegment = new ArraySegment<byte>(rentedBuffer, totalBytesReceived, rentedBuffer.Length - totalBytesReceived);
+                        result = await webSocket.ReceiveAsync(bufferSegment, closeToken);
 
-            }
-        }
+                        if (result.MessageType == WebSocketMessageType.Close)
+                        {
+                            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                            return;
+                        }
 
-        Message DeserializeMsg(MemoryStream stream)
-        {
-            var data = stream.GetBuffer();
-            var reader = new MessagePackReader(new ReadOnlyMemory<byte>(data, 0, (int)stream.Length));
-            Type type = null;
-            if (reader.NextMessagePackType == MessagePackType.Array)
-            {
-                var count = reader.ReadArrayHeader();
-                if (count != 2)
-                    throw new MessagePackSerializationException("Invalid polymorphic array count");
-                if (reader.NextMessagePackType == MessagePackType.Integer)
-                {
-                    var typeId = reader.ReadInt32();
-                    if (!PolymorphicTypeMapper.TryGet(typeId, out type))
-                        throw new MessagePackSerializationException($"Cannot find Type Id: {typeId} registered in {nameof(PolymorphicTypeMapper)}");
-                }
-            }
-            else
-            {
-                throw new MessagePackSerializationException("不是正确的序列化格式...");
-            }
+                        totalBytesReceived += result.Count;
 
-            return MessagePackSerializer.Deserialize(type, ref reader, MessagePackSerializerOptions.Standard) as Message;
-        }
+                        // Ensure we do not exceed the buffer length
+                        if (totalBytesReceived >= rentedBuffer.Length)
+                        {
+                            throw new InvalidOperationException("Buffer overflow. The message is too large to fit in the buffer.");
+                        }
+                    } while (!result.EndOfMessage);
 
-        async Task DoRevice()
-        {
-            var stream = new MemoryStream();
-            var buffer = new ArraySegment<byte>(new byte[2048]);
-
-            var closeToken = closeSrc.Token;
-            while (!closeToken.IsCancellationRequested)
-            {
-                int len = 0;
-                WebSocketReceiveResult result;
-                stream.SetLength(0);
-                stream.Seek(0, SeekOrigin.Begin);
-                do
-                {
-                    result = await webSocket.ReceiveAsync(buffer, closeToken);
-                    len += result.Count;
-                    stream.Write(buffer.Array, buffer.Offset, result.Count);
-                } while (!result.EndOfMessage);
-
-                if (result.MessageType == WebSocketMessageType.Close)
-                    break;
-
-                stream.Seek(0, SeekOrigin.Begin);
-                //这里默认用多态类型的反序列方式，里面做了兼容处理 
-                var message = DeserializeMsg(stream);// Serializer.Deserialize<Message>(stream);
+                    var message = DeserializeMsg(rentedBuffer.AsSpan(0, totalBytesReceived));
 
 #if DEBUG
-                LOGGER.Info("收到消息:" +message.GetType().Name+"  " + MessagePackSerializer.SerializeToJson(message));
+                    LOGGER.Info("收到消息: " + message.GetType().Name + "  " + JsonConvert.SerializeObject(message));
 #endif
-                onMessage(message);
+                    onMessage(message);
+                }
             }
-            stream.Close();
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(rentedBuffer); // Ensure buffer is returned
+            }
         }
 
         public override void Write(Message msg)

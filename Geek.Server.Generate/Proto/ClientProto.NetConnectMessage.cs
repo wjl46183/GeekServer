@@ -1,19 +1,16 @@
 //auto generated, do not modify it
 
-using MessagePack;
+using MemoryPack;
+using Geek.Server.Core.Net;
 
 namespace ClientProto
 {
-	[MessagePackObject(true)]
-	public class NetConnectMessage : Message
-	{
-		[IgnoreMember]
-		public const int Sid = 667869091;
+    [MemoryPackable]
+    public partial class NetConnectMessage : Message
+    {
+        [MemoryPackIgnore] public const int Sid = 667869091;
 
-		[IgnoreMember]
-		public const int MsgID = Sid;
-		[IgnoreMember]
-		public override int MsgId => MsgID;
-
-	}
+        [MemoryPackIgnore] public const int MsgID = Sid;
+        public override int MsgId => MsgID;
+    }
 }

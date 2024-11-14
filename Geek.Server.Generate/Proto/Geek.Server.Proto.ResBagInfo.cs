@@ -1,19 +1,18 @@
 //auto generated, do not modify it
 
-using MessagePack;
+using MemoryPack;
 using System.Collections.Generic;
-
+using Geek.Server.Core.Net;
 namespace Geek.Server.Proto
 {
-	[MessagePackObject(true)]
-	public class ResBagInfo : Message
+	[MemoryPackable]
+	public partial class ResBagInfo : Message
 	{
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int Sid = -1872884227;
 
-		[IgnoreMember]
+		[MemoryPackIgnore]
 		public const int MsgID = Sid;
-		[IgnoreMember]
 		public override int MsgId => MsgID;
 
         public Dictionary<int, long> ItemDic { get; set; } = new Dictionary<int, long>();

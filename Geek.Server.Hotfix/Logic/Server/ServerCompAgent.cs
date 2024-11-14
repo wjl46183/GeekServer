@@ -30,7 +30,7 @@ namespace Server.Logic.Logic.Server
         public override void Active()
         {
             Delay<DelayTimer>(TimeSpan.FromSeconds(3));
-            Schedule<ScheduleTimer>(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30));
+            Schedule<ScheduleTimer>(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5));
         }
 
 
@@ -71,7 +71,7 @@ namespace Server.Logic.Logic.Server
 
         private Task TestScheduleTimer()
         {
-            LOGGER.Debug("ServerCompAgent.TestSchedueTimer.延时1秒执行.每隔30秒执行");
+            LOGGER.Debug("ServerCompAgent.TestSchedueTimer.延时1秒执行.每隔5秒执行");
             return Task.CompletedTask;
         }
 

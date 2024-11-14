@@ -104,7 +104,6 @@ namespace PolymorphicMessagePack
             {
                 return;
             }
-            PolymorphicResolver.Instance.RemoveFormatterDelegateCache(type);
 
             IdToType.Remove(id, out _);
             TypeToId.Remove(type, out _);
