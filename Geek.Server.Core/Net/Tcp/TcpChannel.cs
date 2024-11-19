@@ -165,7 +165,7 @@ namespace Geek.Server.Core.Net.Tcp
             }
             else
             {
-                var message = MemoryPackSerializer.Deserialize<Message>(payload.Slice(16));
+                var message = MemoryPackSerializer.Deserialize(msgType,payload.Slice(16)) as Message;
                 if (message.MsgId != msgId)
                 {
                     throw new Exception($"解析消息错误，注册消息id和消息无法对应.real:{message.MsgId}, register:{msgId}");
@@ -233,7 +233,7 @@ namespace Geek.Server.Core.Net.Tcp
         {
             if (IsClose())
                 return;
-            var bytes = MemoryPackSerializer.Serialize(msg);
+            var bytes = MemoryPackSerializer.Serialize(msg.GetType(),msg);
             int len = 8 + bytes.Length;
             Span<byte> span = stackalloc byte[len];
             int offset = 0;

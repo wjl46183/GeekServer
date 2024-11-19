@@ -1,11 +1,12 @@
 ﻿using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
+using MemoryPack;
 
 namespace Geek.Server.App.Logic.Role.Bag
 {
-
-    public class BagState : CacheState
+    [MemoryPackable]
+    public partial class BagState : CacheState
     { 
         public Dictionary<int, long> ItemMap = new Dictionary<int, long>();
     }

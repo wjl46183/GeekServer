@@ -1,4 +1,5 @@
-﻿using MemoryPack; 
+﻿using Geek.Server.Core.Net;
+using MemoryPack; 
 
 namespace ClientProto
 { 
@@ -10,6 +11,6 @@ namespace ClientProto
 
     [MemoryPackable]
     public partial class NetDisConnectMessage : Message
-    { 
+    {
     } 
 }

@@ -84,7 +84,8 @@ namespace Geek.Server.Core.Net.Websocket
                         bufferWriter.Write(msgIdBytes);
 
                         // 序列化 message 到 bufferWriter
-                        MemoryPackSerializer.Serialize(bufferWriter, message);
+                        byte[] bytes = MemoryPackSerializer.Serialize(message.GetType(),message);
+                        bufferWriter.Write(bytes);
 
                         // 获取已写入数据的内存片段
                         var data = bufferWriter.WrittenMemory;

@@ -32,7 +32,7 @@ namespace Server.Logic.Logic.Role.Bag
         public async Task GetBagInfo(ReqBagInfo reqMsg)
         {
             var ret = BuildInfoMsg();
-            await this.NotifyClient(ret, reqMsg.UniId);
+            await this.NotifyClient(ret, reqMsg.SerialId);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Server.Logic.Logic.Role.Bag
 
             var res = new ResComposePet();
             res.PetId = 1000;
-            await this.NotifyClient(res, reqMsg.UniId);
+            await this.NotifyClient(res, reqMsg.SerialId);
         }
 
 

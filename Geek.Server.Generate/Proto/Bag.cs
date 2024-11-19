@@ -1,6 +1,7 @@
 ﻿
 using MemoryPack;
 using System.Collections.Generic;
+using Geek.Server.Core.Net;
 
 namespace Geek.Server.Proto
 {
@@ -19,6 +20,7 @@ namespace Geek.Server.Proto
     [MemoryPackable]
     public partial class ResBagInfo : Message
     {
+        
         public Dictionary<int, long> ItemDic { get; set; } = new Dictionary<int, long>();
     }
 
@@ -57,6 +59,11 @@ namespace Geek.Server.Proto
         /// 道具id
         /// </summary>
         public int ItemId { get; set; }
+        
+        /// <summary>
+        /// 道具id
+        /// </summary>
+        public int ItemId1 { get; set; }
     }
 
     /// <summary>

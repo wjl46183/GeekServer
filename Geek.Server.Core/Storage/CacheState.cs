@@ -1,5 +1,5 @@
 ﻿using System.Buffers;
-
+using Geek.Server.Core.Net;
 using MemoryPack;
 using MongoDB.Bson.Serialization.Attributes;
 using NLog;
@@ -93,7 +93,8 @@ namespace Geek.Server.Core.Storage
                 bufferWriter.Clear();
             }
 
-            MemoryPackSerializer.Serialize(bufferWriter, State);
+            byte[] bytes = MemoryPackSerializer.Serialize(State.GetType(),State);
+            bufferWriter.Write(bytes);
             var buffer = bufferWriter.WrittenSpan;
 
             ulong hash = 3074457345618258791ul;

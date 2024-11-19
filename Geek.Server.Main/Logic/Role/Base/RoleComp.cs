@@ -2,17 +2,13 @@
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
+using MemoryPack;
 
 namespace Geek.Server.App.Logic.Role.Base
 {
 
-    [Comp(ActorType.Role)]
-    public class RoleComp : StateComp<RoleState>
-    {
-
-    }
-
-    public class RoleState : CacheState
+    [MemoryPackable]
+    public partial class RoleState : CacheState
     {
         public long RoleId => Id;
         public string RoleName;
@@ -22,4 +18,11 @@ namespace Geek.Server.App.Logic.Role.Base
         public DateTime LoginTime;
         public DateTime OfflineTime;
     }
+    
+    [Comp(ActorType.Role)]
+    public partial class RoleComp : StateComp<RoleState>
+    {
+
+    }
+
 }

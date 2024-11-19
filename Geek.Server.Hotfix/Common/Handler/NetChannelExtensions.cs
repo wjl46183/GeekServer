@@ -10,14 +10,14 @@ public static class NetChannelExtensions
     {
         if (msg != null)
         {
-            msg.UniId = uniId;
+            msg.SerialId = uniId;
             channel.Write(msg);
         }
-        if (uniId > 0)
+        if (uniId < 0)
         {
             ResErrorCode res = new ResErrorCode
             {
-                UniId = uniId,
+                SerialId = uniId,
                 ErrCode = (int)code,
                 Desc = desc
             };

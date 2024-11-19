@@ -32,7 +32,6 @@ namespace Geek.Server.TestPressure
             //}
             //return;
 
-            PolymorphicRegister.Load();
             PolymorphicResolver.Instance.Init();
             LogManager.Configuration = new XmlLoggingConfiguration("Configs/test_log.config");
 

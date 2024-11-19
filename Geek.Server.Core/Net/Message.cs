@@ -12,7 +12,7 @@ namespace Geek.Server.Core.Net
         /// <summary>
         /// 消息唯一id
         /// </summary>
-        public int UniId { get; set; }
+        public int SerialId { get; set; }
     
         /// <summary>
         /// 消息类型唯一ID

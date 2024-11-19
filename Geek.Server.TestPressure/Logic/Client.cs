@@ -105,9 +105,9 @@ namespace Geek.Server.TestPressure.Logic
          
         async Task<bool> SendMsgAndWaitBack(Message msg)
         {
-            msg.UniId = (int)id*10000 +  msgUniId++;
-            Log.Info($"{id} 发送消息:{JsonConvert.SerializeObject(msg)}");
-            var awaiter = msgWaiter.StartWait(msg.UniId,  msg.GetType().Name); 
+            msg.SerialId = (int)id*10000 +  msgUniId++;
+            Log.Info($"{id} {msg.GetType()} 发送消息:{JsonConvert.SerializeObject(msg)}");
+            var awaiter = msgWaiter.StartWait(msg.SerialId,  msg.GetType().Name); 
             netChannel.Write(msg);
             return await awaiter;
         }
@@ -116,7 +116,7 @@ namespace Geek.Server.TestPressure.Logic
 
         public void OnRevice(Message msg)
         {
-            Log.Info($"收到消息:{msg.MsgId} {MsgFactory.GetType(msg.MsgId)}"); 
+            Log.Info($"收到消息:{msg.MsgId} {MsgFactory.GetType(msg.MsgId)} {JsonConvert.SerializeObject(msg)}"); 
 
             if (msg.MsgId == ResErrorCode.MsgID)
             {
@@ -133,15 +133,14 @@ namespace Geek.Server.TestPressure.Logic
                     default:
                         break;
                 }
-                msgWaiter.EndWait(errMsg.UniId, errMsg.ErrCode == (int)ServerErrorCode.Success);
                 if (!string.IsNullOrEmpty(errMsg.Desc))
                     Log.Info("服务器提示:" + errMsg.Desc);
             }
             else
             {
-
-                //Log.Info($"{id} 收到消息:{JsonConvert.SerializeObject(msg)}");
+                msgWaiter.EndWait(msg.SerialId);
             }
+
         }
     }
 }

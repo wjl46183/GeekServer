@@ -1,10 +1,12 @@
 ﻿using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
+using MemoryPack;
 
 namespace Geek.Server.App.Logic.Server
 {
-    public class ServerState : CacheState
+    [MemoryPackable]
+    public partial class ServerState : CacheState
     {
         /// <summary>
         /// 世界等级

@@ -99,7 +99,7 @@ namespace Geek.Server.TestPressure.Logic
             }
             else
             {
-                var message = MemoryPackSerializer.Deserialize<Message>(payload.Slice(4));
+                var message = MemoryPackSerializer.Deserialize(msgType,payload.Slice(4)) as Message;
 #if UNITY_EDITOR
                 Debug.Log("收到消息:" + MessagePackSerializer.SerializeToJson(message));
 #endif
@@ -120,7 +120,7 @@ namespace Geek.Server.TestPressure.Logic
         {
             if (IsClose())
                 return;
-            var bytes = MemoryPackSerializer.Serialize(msg);
+            byte[] bytes = MemoryPackSerializer.Serialize(msg.GetType(),msg);
             int len = 4 + 8 + 4 + 4 + bytes.Length;
             Span<byte> target = stackalloc byte[len];
 

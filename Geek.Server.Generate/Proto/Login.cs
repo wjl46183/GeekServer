@@ -1,5 +1,7 @@
 ﻿
+using Geek.Server.Core.Net;
 using MemoryPack;
+using PolymorphicMessagePack;
 
 namespace Geek.Server.Proto
 {
@@ -17,7 +19,7 @@ namespace Geek.Server.Proto
     }
 
     [MemoryPackable]
-    public partial class A
+    public partial class A : Message
     {
         public int Age { get; set; }
         public TestEnum E { get; set; } = TestEnum.B;
@@ -30,6 +32,7 @@ namespace Geek.Server.Proto
         public string Name { get; set; }
         [MemoryPackIgnore]
         public string Test { get; set; }
+        public string Test2 { get; set; }
     }
 
 
