@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text;
 using MemoryPack;
 using MemoryPack.Formatters;
 
@@ -30,11 +31,36 @@ namespace PolymorphicMessagePack
 
             return geekServerAssemblies;
         }
+        
+        private static ushort ComputeCRC16(byte[] data)
+        {
+            const ushort polynomial = 0xA001;
+            ushort crc = 0xFFFF;
+
+            foreach (byte b in data)
+            {
+                crc ^= b;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    if ((crc & 1) != 0)
+                    {
+                        crc = (ushort)((crc >> 1) ^ polynomial);
+                    }
+                    else
+                    {
+                        crc >>= 1;
+                    }
+                }
+            }
+
+            return crc;
+        }
 
         public static void RegisterAllPolymorphicTypes(params Assembly[] assemblies)
         {
             // 存储类型和其对应的ID
-            var typeIdPairs = new Dictionary<Type, List<(int, Type)>>();
+            var typeIdPairs = new Dictionary<Type, Dictionary<int, Type>>();
 
             foreach (var assembly in assemblies)
             {
@@ -44,8 +70,10 @@ namespace PolymorphicMessagePack
                                 !t.IsInterface)
                     .ToArray();
 
+                
                 foreach (var type in memoryPackableTypes)
                 {
+                    Dictionary<ushort,bool> usageIdSet = new Dictionary<ushort,bool>();
                     // 找到该类型的基类，且基类也是MemoryPackable
                     var baseType = type.BaseType;
                     while (baseType != null && baseType != typeof(object))
@@ -54,10 +82,14 @@ namespace PolymorphicMessagePack
                         {
                             if (!typeIdPairs.ContainsKey(baseType))
                             {
-                                typeIdPairs[baseType] = new List<(int, Type)>();
+                                typeIdPairs[baseType] = new Dictionary<int, Type>();
                             }
-
-                            typeIdPairs[baseType].Add((typeIdPairs[baseType].Count, type));
+                            var hash = ComputeCRC16(Encoding.UTF8.GetBytes(type.FullName));
+                            if (typeIdPairs[baseType].ContainsKey(hash))
+                            {
+                                throw new Exception($"生成的Hash冲突： id {hash} for {type.FullName} 尝试修改类型名称，重新运行游戏");
+                            }
+                            typeIdPairs[baseType][hash] = type;
                             break;
                         }
 
@@ -72,35 +104,24 @@ namespace PolymorphicMessagePack
                 var baseType = kvp.Key;
                 (ushort Tag, Type Type)[] derivedTypes = new (ushort Tag, Type Type)[kvp.Value.Count];
 
-                for (int i = 0; i < kvp.Value.Count; i++)
+                int index = 0;
+                foreach (var keyValuePair in kvp.Value)
                 {
-                    var tag = (ushort)kvp.Value[i].Item1;
-                    Type type = kvp.Value[i].Item2;
-                    derivedTypes[i] = (tag, type);
+                    var tag = (ushort)keyValuePair.Key;
+                    Type type = keyValuePair.Value;
+                    derivedTypes[index++] = (tag, type);
                 }
 
                 var formatterType = typeof(DynamicUnionFormatter<>).MakeGenericType(baseType);
                 var formatter = Activator.CreateInstance(formatterType, new object[] { derivedTypes });
 
-                // Get the Register<T> method
                 var registerMethod = typeof(MemoryPackFormatterProvider).GetMethods(BindingFlags.Static | BindingFlags.Public)
                     .FirstOrDefault(m => m.Name == "Register" && m.IsGenericMethodDefinition);
 
-                if (registerMethod != null)
-                {
-                    // Make the generic method specific to the baseType
-                    var genericRegisterMethod = registerMethod.MakeGenericMethod(baseType);
+                var genericRegisterMethod = registerMethod.MakeGenericMethod(baseType);
 
-                    // Invoke the method
-                    genericRegisterMethod.Invoke(null, new object[] { formatter });
-                    Console.WriteLine($"Registered {kvp.Value.Count} types derived from {baseType.FullName}");
-                }
-                else
-                {
-                    Console.WriteLine($"Could not find generic Register method for {baseType.FullName}");
-                }
-
-                Console.WriteLine($"Registered {kvp.Value.Count} types derived from {baseType.FullName}");
+                genericRegisterMethod.Invoke(null, new object[] { formatter });
+                Console.WriteLine($"动态注册MemoryPack基类： {baseType.FullName} -> {kvp.Value.Count}");
             }
         }
     }
