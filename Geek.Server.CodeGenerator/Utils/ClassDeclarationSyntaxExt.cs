@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -14,55 +15,90 @@ namespace Geek.Server.CodeGenerator.Utils
 
         public static string GetFullName(this ClassDeclarationSyntax source)
         {
-            Contract.Requires(null != source);
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
             var items = new List<string>();
             var parent = source.Parent;
-            while (parent.IsKind(SyntaxKind.ClassDeclaration))
-            {
-                var parentClass = parent as ClassDeclarationSyntax;
-                Contract.Assert(null != parentClass);
-                items.Add(parentClass.Identifier.Text);
 
+            // Collect all parent class names (for nested classes)
+            while (parent is ClassDeclarationSyntax parentClass)
+            {
+                items.Add(parentClass.Identifier.Text);
                 parent = parent.Parent;
             }
 
-            var nameSpace = parent as NamespaceDeclarationSyntax;
-            Contract.Assert(null != nameSpace);
-            var sb = new StringBuilder().Append(nameSpace.Name).Append(NAMESPACE_CLASS_DELIMITER);
-            items.Reverse();
-            items.ForEach(i => { sb.Append(i).Append(NESTED_CLASS_DELIMITER); });
-            sb.Append(source.Identifier.Text);
-
-            var result = sb.ToString();
-            return result;
-        }
-
-        public static string GetNameSpace(this ClassDeclarationSyntax source)
-        {
-            Contract.Requires(null != source);
-
-            var items = new List<string>();
-            var parent = source.Parent;
-            while (parent.IsKind(SyntaxKind.ClassDeclaration))
+            // Determine namespace or file-scoped namespace
+            string namespaceName = string.Empty;
+            if (parent is NamespaceDeclarationSyntax namespaceDeclaration)
             {
-                var parentClass = parent as ClassDeclarationSyntax;
-                Contract.Assert(null != parentClass);
-                items.Add(parentClass.Identifier.Text);
-
-                parent = parent.Parent;
+                namespaceName = namespaceDeclaration.Name.ToString();
+            }
+            else if (parent is FileScopedNamespaceDeclarationSyntax fileScopedNamespace)
+            {
+                namespaceName = fileScopedNamespace.Name.ToString();
             }
 
-            var nameSpace = parent as NamespaceDeclarationSyntax;
-            Contract.Assert(null != nameSpace);
-            var sb = new StringBuilder().Append(nameSpace.Name).Append(NAMESPACE_CLASS_DELIMITER);
-            items.Reverse();
-            items.ForEach(i => { sb.Append(i).Append(NESTED_CLASS_DELIMITER); });
+            // Build full name
+            var sb = new StringBuilder();
+            if (!string.IsNullOrEmpty(namespaceName))
+            {
+                sb.Append(namespaceName).Append(NAMESPACE_CLASS_DELIMITER);
+            }
+
+            // Add nested class names
+            for (int i = items.Count - 1; i >= 0; i--)
+            {
+                sb.Append(items[i]).Append(NESTED_CLASS_DELIMITER);
+            }
+
+            // Add the actual class name
             sb.Append(source.Identifier.Text);
 
-            var result = sb.ToString();
-            return result;
+            return sb.ToString();
         }
+        
+        // public static string GetFullName(this ClassDeclarationSyntax classDeclaration)
+        // {
+        //     // 获取类名
+        //     string className = classDeclaration.Identifier.Text;
+        //
+        //     // 获取命名空间名
+        //     string namespaceName = GetNamespace(classDeclaration);
+        //
+        //     // 拼接命名空间和类名
+        //     return string.IsNullOrEmpty(namespaceName) ? className : $"{namespaceName}.{className}";
+        // }
+
+        // private static string GetNamespace(SyntaxNode syntaxNode)
+        // {
+        //     // 用于构建完整命名空间
+        //     Stack<string> namespaces = new Stack<string>();
+        //
+        //     // 遍历祖先节点以找到 NamespaceDeclarationSyntax
+        //     SyntaxNode current = syntaxNode;
+        //     while (current != null)
+        //     {
+        //         if (current is NamespaceDeclarationSyntax namespaceDeclaration)
+        //         {
+        //             namespaces.Push(namespaceDeclaration.Name.ToString());
+        //         }
+        //         else if (current is FileScopedNamespaceDeclarationSyntax fileScopedNamespace)
+        //         {
+        //             namespaces.Push(fileScopedNamespace.Name.ToString());
+        //         }
+        //         current = current.Parent;
+        //     }
+        //
+        //     return string.Join(".", namespaces);
+        // }
+
+// 示例用法
+// 假设 classDeclaration 是一个有效的 ClassDeclarationSyntax 实例
+// string fullName = FullNameExtractor.GetFullName(classDeclaration);
+// Console.WriteLine($"Full Name: {fullName}");
+
+
 
 
     }

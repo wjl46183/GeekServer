@@ -6,7 +6,7 @@ using Geek.Server.CodeGenerator.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Geek.Server.CodeGenerator.Agent
+namespace Geek.Server.CodeGenerator.MemoryPack
 {
     public class MemoryPackFilter : ISyntaxReceiver
     {
@@ -43,7 +43,7 @@ namespace Geek.Server.CodeGenerator.Agent
                 LogMessage(typeDeclaration.GetFullName() + "   " + baseType.Type.ToString());
                 return baseType.Type.ToString() == "Message";
             });
-
+            
             if (isAdd)
             {
                 CandidateClasses.Add(typeDeclaration);
@@ -52,11 +52,12 @@ namespace Geek.Server.CodeGenerator.Agent
         
         public static void LogMessage(string message)
         {
-            var logFilePath = "/Users/wangjinliang/work/pixelminion/pixelminion-client/GeekServer/LogFile.log"; 
-            using (var writer = new StreamWriter(logFilePath, append: true))
-            {
-                writer.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "  " + message);
-            }
+            System.Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "  " + message);
+             var logFilePath = "/Users/wangjinliang/work/pixelminion/pixelminion-client/GeekServer/LogFile.log"; 
+             using (var writer = new StreamWriter(logFilePath, append: true))
+             {
+                 writer.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "  " + message);
+             }
         }
     }
 }
