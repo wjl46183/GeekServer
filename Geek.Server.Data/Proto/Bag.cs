@@ -59,11 +59,6 @@ namespace Geek.Server.Proto
         /// 道具id
         /// </summary>
         public int ItemId { get; set; }
-        
-        /// <summary>
-        /// 道具id
-        /// </summary>
-        public int ItemId1 { get; set; }
     }
 
     /// <summary>
@@ -76,6 +71,10 @@ namespace Geek.Server.Proto
         /// 道具id
         /// </summary>
         public int ItemId { get; set; }
+        /// <summary>
+        /// 道具id
+        /// </summary>
+        public int ItemId3 { get; set; }
     }
 
     [MemoryPackable]

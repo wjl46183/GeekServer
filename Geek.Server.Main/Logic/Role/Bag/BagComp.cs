@@ -3,17 +3,16 @@ using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
 using MemoryPack;
 
-namespace Geek.Server.App.Logic.Role.Bag
+namespace Geek.Server.Main.Logic.Role.Bag;
+
+[MemoryPackable]
+public partial class BagState : CacheState
 {
-    [MemoryPackable]
-    public partial class BagState : CacheState
-    { 
-        public Dictionary<int, long> ItemMap = new Dictionary<int, long>();
-    }
+    
+    public Dictionary<int, long> ItemMap = new Dictionary<int, long>();
+}
 
-    [Comp(ActorType.Role)]
-    public class BagComp : StateComp<BagState>
-    {
-
-    }
+[Comp(ActorType.Role)]
+public class BagComp : StateComp<BagState>
+{
 }

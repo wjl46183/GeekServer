@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PolymorphicMessagePack
+namespace Geek.Server.Core.PolymorphicType
 {
     /// <summary>
     /// 生成唯一ID属性

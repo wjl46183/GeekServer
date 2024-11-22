@@ -1,6 +1,6 @@
 ﻿
-using Geek.Server.App.Common.Net;
-using Geek.Server.App.Common.Session;
+using Geek.Server.Main.Common.Net;
+using Geek.Server.Main.Common.Session;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
 using Geek.Server.Core.Hotfix;
@@ -10,7 +10,6 @@ using Geek.Server.Core.Net.Websocket;
 using Geek.Server.Core.Timer;
 using Geek.Server.Core.Utils;
 using Microsoft.AspNetCore.Connections;
-using PolymorphicMessagePack;
 
 namespace Server.Logic.Common
 {
@@ -27,14 +26,13 @@ namespace Server.Logic.Common
                 ActorMgr.ClearAgent();
                 return true;
             }
-            PolymorphicTypeMapper.Register(this.GetType().Assembly);
-            HotfixMgr.SetMsgGetter(MsgFactory.GetType);
+            HotfixMgr.SetMsgGetter(Geek.Server.Data.MemoryPackTypeMapping.GetType);
 
             await TcpServer.Start(Settings.TcpPort, builder => builder.UseConnectionHandler<AppTcpConnectionHandler>());
             await WebSocketServer.Start(Settings.WebSocketUrl, new AppWebSocketConnectionHandler());
             await HttpServer.Start(Settings.HttpPort);
 
-            Log.Info("load config data");
+            Log.Info("加载配置表...");
             (bool success, string msg) = ConfigManager.LoadTables();
             if (!success)
                 throw new Exception($"载入配置表失败... {msg}");

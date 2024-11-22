@@ -24,6 +24,7 @@ namespace Geek.Server.CodeGenerator.MemoryPack
 
         public void Execute(GeneratorExecutionContext context)
         {
+            Logger.LogNormal(context,$"==================== 生成程序集： {context.Compilation.AssemblyName} ====================");
             if (context.SyntaxReceiver is MemoryPackFilter receiver)
             {
                 if (receiver.CandidateClasses.Count <= 0)
@@ -36,8 +37,17 @@ namespace Geek.Server.CodeGenerator.MemoryPack
                     var namespaceName = GetNamespace(typeDeclaration);
                     var className = typeDeclaration.Identifier.Text;
                     var sidValue = className.GetHashCode();
-                    Debug.WriteLine($"生成类型ID: {sidValue}");
-                    var sourceBuilder = CodeTemplate.getMemoryPackSidStr(namespaceName, className, sidValue);
+
+                    bool isOverride = false;
+                    var model = context.Compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
+                    var classSymbol = model.GetDeclaredSymbol(typeDeclaration);
+                    if (classSymbol != null)
+                    {
+                        var interfaces = classSymbol.AllInterfaces;
+                        isOverride = interfaces.Any(interfaceSymbol => interfaceSymbol.Name.ToString() == "ITypeId");
+                    }
+                    
+                    var sourceBuilder = CodeTemplate.getMemoryPackSidStr(namespaceName, className, sidValue,isOverride);
                     if (typeDict.ContainsKey(sidValue))
                     {
                         throw new Exception($"重复类型ID: {sidValue} 与类型: {typeDict[sidValue]} 重复，尝试修改类型名称");
@@ -46,20 +56,30 @@ namespace Geek.Server.CodeGenerator.MemoryPack
                     context.AddSource($"{className}_MemoryPack_Sid.g.cs",
                         SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
                 }
-                context.AddSource($"MsgFactory.g.cs",
-                    SourceText.From(CodeTemplate.getMsgFactoryStr(typeDict), Encoding.UTF8));
-                Debug.Flush();
+                string mapNamespaceName = context.Compilation.AssemblyName;
+                context.AddSource($"MemoryPackTypeMapping.g.cs",
+                    SourceText.From(CodeTemplate.getMsgFactoryStr(mapNamespaceName,typeDict), Encoding.UTF8));
             }
         }
 
         private string GetNamespace(TypeDeclarationSyntax typeDeclaration)
         {
-            // Traverse up the syntax tree to find the namespace declaration
-            var namespaceDeclaration = typeDeclaration.Ancestors()
-                .OfType<NamespaceDeclarationSyntax>()
-                .FirstOrDefault();
+            // 首先检查文件作用域的命名空间
+            var parent = typeDeclaration.Parent;
+            while (parent != null)
+            {
+                if (parent is FileScopedNamespaceDeclarationSyntax fileScopedNamespace)
+                {
+                    return fileScopedNamespace.Name.ToString();
+                }
+                else if (parent is NamespaceDeclarationSyntax namespaceDeclaration)
+                {
+                    return namespaceDeclaration.Name.ToString();
+                }
+                parent = parent.Parent;
+            }
 
-            return namespaceDeclaration?.Name.ToString() ?? "GlobalNamespace";
+            return "GlobalNamespace";
         }
     }
 }

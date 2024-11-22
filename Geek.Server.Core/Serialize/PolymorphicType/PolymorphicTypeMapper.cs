@@ -3,7 +3,7 @@ using NLog;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-namespace PolymorphicMessagePack
+namespace Geek.Server.Core.PolymorphicType
 {
     public class PolymorphicTypeMapper
     {
@@ -31,25 +31,7 @@ namespace PolymorphicMessagePack
         {
             return TypeToId.TryGetValue(t, out id);
         }
-        public static bool TryGet(string tname, Type baseType, out Type type)
-        {
-            type = null;
-            classBaseNameToType.TryGetValue(tname, out var tlsit);
-            if (tlsit != null)
-            {
-                foreach (var t in tlsit)
-                {
-                    if (t.IsSubclassOf(baseType) || t == baseType)
-                    {
-                        type = t;
-                        return true;
-                    }
-
-                }
-            }
-            return false;
-        }
-
+        
         public static void Register<T>()
         {
             Register(typeof(T));
@@ -86,17 +68,6 @@ namespace PolymorphicMessagePack
             tlist.Add(type);
         }
 
-        public static void Register(Assembly assembly)
-        {
-            var types = from h in assembly.GetTypes()
-                        where h.IsClass && !h.ContainsGenericParameters && !h.FullName.Contains("<") && !h.FullName.EndsWith("Handler") && !h.IsSubclassOf(typeof(Attribute)) && h.GetCustomAttribute<PolymorphicIgnore>() == null
-                        select h;
-            foreach (var t in types)
-            {
-                Register(t);
-            }
-        }
-
         public static void UnRegister(Type type)
         {
             var id = (int)MurmurHash3.Hash(type.FullName);
@@ -121,20 +92,6 @@ namespace PolymorphicMessagePack
                     tlist.RemoveAt(i);
                 }
             }
-        }
-
-        public static void UnRegister(Assembly assembly)
-        {
-            var types = assembly.GetTypes();
-            foreach (var t in types)
-            {
-                UnRegister(t);
-            }
-        }
-
-        public static void RegisterCore()
-        {
-            Register(typeof(PolymorphicTypeMapper).Assembly);
         }
     }
 }

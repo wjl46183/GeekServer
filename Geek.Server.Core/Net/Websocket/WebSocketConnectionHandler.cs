@@ -27,10 +27,10 @@ namespace Geek.Server.Core.Net.Websocket
                 return;
 
             //LOGGER.Debug($"-------------收到消息{msg.MsgId} {msg.GetType()}");
-            var handler = HotfixMgr.GetTcpHandler(msg.MsgId);
+            var handler = HotfixMgr.GetTcpHandler(msg.TypeId);
             if (handler == null)
             {
-                LOGGER.Error($"找不到[{msg.MsgId}][{msg.GetType()}]对应的handler");
+                LOGGER.Error($"找不到[{msg.TypeId}][{msg.GetType()}]对应的handler");
                 return;
             }
             handler.Msg = msg;

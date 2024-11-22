@@ -1,12 +1,12 @@
 ﻿using System.Collections.Concurrent;
-using Geek.Server.App.Common.Event;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Net.BaseHandler;
+using Geek.Server.Main.Common.Event;
 using Geek.Server.Proto;
 using NLog;
 
-namespace Geek.Server.App.Common.Session
+namespace Geek.Server.Main.Common.Session
 {
     /// <summary>
     /// 管理玩家session，一个玩家一个，下线之后移除，顶号之后释放之前的channel，替换channel

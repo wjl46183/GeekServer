@@ -14,5 +14,16 @@ namespace Geek.Server.CodeGenerator.Utils
                                                                                                isEnabledByDefault: true);
             context.ReportDiagnostic(Diagnostic.Create(InvalidXmlWarning, Location.None, msg));
         }
+        
+        public static void LogNormal(this GeneratorExecutionContext context, string msg)
+        {
+            DiagnosticDescriptor InvalidXmlWarning = new DiagnosticDescriptor(id: "Warning",
+                title: "Code Generator Info",
+                messageFormat: "{0}",
+                category: "CodeGenerator",
+                DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+            context.ReportDiagnostic(Diagnostic.Create(InvalidXmlWarning, Location.None, msg));
+        }
     }
 }

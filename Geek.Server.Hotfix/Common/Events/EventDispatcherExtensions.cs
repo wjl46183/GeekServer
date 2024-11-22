@@ -1,4 +1,4 @@
-﻿using Geek.Server.App.Common.Event;
+﻿using Geek.Server.Main.Common.Event;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix;

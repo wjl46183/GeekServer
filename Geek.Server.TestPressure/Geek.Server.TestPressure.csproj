@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Geek.Server.Core/Geek.Server.Core.csproj" />
-    <ProjectReference Include="../Geek.Server.Generate/Geek.Server.Generate.csproj" />
+    <ProjectReference Include="..\Geek.Server.Data\Geek.Server.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

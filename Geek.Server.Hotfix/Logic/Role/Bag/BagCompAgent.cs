@@ -1,6 +1,6 @@
 ﻿
-using Geek.Server.App.Common.Event;
-using Geek.Server.App.Logic.Role.Bag;
+using Geek.Server.Main.Common.Event;
+using Geek.Server.Main.Logic.Role.Bag;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
 using Server.Logic.Common.Events;

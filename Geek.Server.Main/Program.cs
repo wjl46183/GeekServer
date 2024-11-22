@@ -1,11 +1,11 @@
-﻿using Geek.Server.App.Common;
-using Geek.Server.Core.Storage;
+﻿using Geek.Server.Core.Storage;
 using Geek.Server.Core.Utils;
 using NLog;
 using System.Diagnostics;
 using System.Text;
+using Geek.Server.Main.Common;
 
-namespace Geek.Server.App
+namespace Geek.Server.Main
 {
     class Program
     {

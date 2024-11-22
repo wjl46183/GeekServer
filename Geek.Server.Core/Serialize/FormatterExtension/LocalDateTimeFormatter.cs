@@ -1,6 +1,6 @@
 ﻿using MemoryPack;
 using System;
-namespace FormatterExtension
+namespace Geek.Server.Core.Serialize
 {
     // 注册自定义格式化器
     //emoryPackFormatterProvider.Register<DateTime, DateTimeFormatter>();

@@ -4,7 +4,7 @@ using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
 using MemoryPack;
 
-namespace Geek.Server.App.Logic.Role.Base
+namespace Geek.Server.Main.Logic.Role.Base
 {
 
     [MemoryPackable]

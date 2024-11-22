@@ -1,7 +1,7 @@
 ﻿
 using Geek.Server.Core.Net;
 using MemoryPack;
-using PolymorphicMessagePack;
+using Geek.Server.Core.PolymorphicType;
 
 namespace Geek.Server.Proto
 {

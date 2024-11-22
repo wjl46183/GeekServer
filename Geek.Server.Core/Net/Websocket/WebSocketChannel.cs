@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
 
 using MessagePack;
-using PolymorphicMessagePack;
+using Geek.Server.Core.PolymorphicType;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
@@ -80,7 +80,7 @@ namespace Geek.Server.Core.Net.Websocket
 
                         bufferWriter.Clear();
                         // 写入 MsgId
-                        var msgIdBytes = BitConverter.GetBytes(message.MsgId);
+                        var msgIdBytes = BitConverter.GetBytes(message.TypeId);
                         bufferWriter.Write(msgIdBytes);
 
                         // 序列化 message 到 bufferWriter
@@ -91,7 +91,7 @@ namespace Geek.Server.Core.Net.Websocket
                         var data = bufferWriter.WrittenMemory;
 
 #if DEBUG
-                        LOGGER.Info($"发送消息长度: {data.Length}, MsgId: {message.MsgId}");
+                        LOGGER.Info($"发送消息长度: {data.Length}, MsgId: {message.TypeId}");
 #endif
 
                         // 发送数据

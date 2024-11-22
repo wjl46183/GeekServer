@@ -3,7 +3,7 @@ using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
 using MemoryPack;
 
-namespace Geek.Server.App.Logic.Server
+namespace Geek.Server.Main.Logic.Server
 {
     [MemoryPackable]
     public partial class ServerState : CacheState

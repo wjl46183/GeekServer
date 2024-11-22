@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.Hotfix", "Geek.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.TestPressure", "Geek.Server.TestPressure\Geek.Server.TestPressure.csproj", "{BF726B95-BC72-471C-891B-516920E14C1F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.Generate", "Geek.Server.Generate\Geek.Server.Generate.csproj", "{E664BD69-1FCC-45D9-925D-B1268370E076}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.Data", "Geek.Server.Data\Geek.Server.Data.csproj", "{E664BD69-1FCC-45D9-925D-B1268370E076}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.CodeGenerator", "Geek.Server.CodeGenerator\Geek.Server.CodeGenerator.csproj", "{3C43CD22-AF8C-432D-A601-EB657D625A86}"
 EndProject

@@ -116,9 +116,9 @@ namespace Geek.Server.TestPressure.Logic
 
         public void OnRevice(Message msg)
         {
-            Log.Info($"收到消息:{msg.MsgId} {MsgFactory.GetType(msg.MsgId)} {JsonConvert.SerializeObject(msg)}"); 
+            Log.Info($"收到消息:{msg.TypeId} {Geek.Server.Data.MemoryPackTypeMapping.GetType(msg.TypeId)} {JsonConvert.SerializeObject(msg)}"); 
 
-            if (msg.MsgId == ResErrorCode.MsgID)
+            if (msg.TypeId == ResErrorCode.TYPE_ID)
             {
                 ResErrorCode errMsg = (ResErrorCode)msg;
                 switch (errMsg.ErrCode)

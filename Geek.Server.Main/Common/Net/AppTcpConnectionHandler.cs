@@ -1,8 +1,8 @@
-﻿using Geek.Server.App.Common.Session;
-using Geek.Server.Core.Net;
+﻿using Geek.Server.Core.Net;
 using Geek.Server.Core.Net.Tcp;
+using Geek.Server.Main.Common.Session;
 
-namespace Geek.Server.App.Common.Net
+namespace Geek.Server.Main.Common.Net
 {
     public class AppTcpConnectionHandler : TcpConnectionHandler
     {

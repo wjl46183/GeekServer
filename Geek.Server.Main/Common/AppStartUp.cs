@@ -5,9 +5,9 @@ using Geek.Server.Core.Storage;
 using Geek.Server.Proto;
 using NLog;
 using NLog.Config;
-using PolymorphicMessagePack;
+using Geek.Server.Core.PolymorphicType;
 
-namespace Geek.Server.App.Common
+namespace Geek.Server.Main.Common
 {
     internal class AppStartUp
     {
@@ -55,9 +55,6 @@ namespace Geek.Server.App.Common
                 LogManager.Setup().SetupExtensions(s => s.RegisterConditionMethod("logState", (e) => Settings.IsDebug ? "debug" : "release"));
                 LogManager.Configuration = new XmlLoggingConfiguration("Configs/app_log.config");
                 LogManager.AutoShutdown = false;
-
-                PolymorphicTypeMapper.Register(typeof(AppStartUp).Assembly); //app
-                PolymorphicResolver.Instance.Init(); 
 
                 //mongodb bson
                 BsonClassMapHelper.SetConvention();

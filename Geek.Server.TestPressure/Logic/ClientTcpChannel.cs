@@ -92,7 +92,7 @@ namespace Geek.Server.TestPressure.Logic
 
             //消息id
             reader.TryReadBigEndian(out int msgId);
-            var msgType = MsgFactory.GetType(msgId);
+            var msgType = Geek.Server.Data.MemoryPackTypeMapping.GetType(msgId);
             if (msgType == null)
             {
                 LOGGER.Error($"消息ID:{msgId} 找不到对应的Msg.");
@@ -103,9 +103,9 @@ namespace Geek.Server.TestPressure.Logic
 #if UNITY_EDITOR
                 Debug.Log("收到消息:" + MessagePackSerializer.SerializeToJson(message));
 #endif
-                if (message.MsgId != msgId)
+                if (message.TypeId != msgId)
                 {
-                    throw new Exception($"解析消息错误，注册消息id和消息无法对应.real:{message.MsgId}, register:{msgId}");
+                    throw new Exception($"解析消息错误，注册消息id和消息无法对应.real:{message.TypeId}, register:{msgId}");
                 }
 
                 onMessage(message);
@@ -132,7 +132,7 @@ namespace Geek.Server.TestPressure.Logic
             target.WriteInt(len, ref offset);
             target.WriteLong(DateTime.Now.Ticks, ref offset);
             target.WriteInt(magic, ref offset);
-            target.WriteInt(msg.MsgId, ref offset);
+            target.WriteInt(msg.TypeId, ref offset);
             target.WriteBytesWithoutLength(bytes, ref offset);
             lock(socket)
             { 

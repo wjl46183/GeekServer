@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Geek.Server.Generate/Geek.Server.Generate.csproj" />
+    <ProjectReference Include="..\Geek.Server.Data\Geek.Server.Data.csproj" />
     <ProjectReference Include="../Geek.Server.CodeGenerator/Geek.Server.CodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

@@ -1,7 +1,7 @@
 ﻿
 using Geek.Server.Core.Net;
 
-namespace Geek.Server.App.Common.Session
+namespace Geek.Server.Main.Common.Session
 {
     public class Session
     {

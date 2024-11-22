@@ -166,9 +166,9 @@ namespace Geek.Server.Core.Net.Tcp
             else
             {
                 var message = MemoryPackSerializer.Deserialize(msgType,payload.Slice(16)) as Message;
-                if (message.MsgId != msgId)
+                if (message.TypeId != msgId)
                 {
-                    throw new Exception($"解析消息错误，注册消息id和消息无法对应.real:{message.MsgId}, register:{msgId}");
+                    throw new Exception($"解析消息错误，注册消息id和消息无法对应.real:{message.TypeId}, register:{msgId}");
                 }
                 msg = message;
             }
@@ -238,7 +238,7 @@ namespace Geek.Server.Core.Net.Tcp
             Span<byte> span = stackalloc byte[len];
             int offset = 0;
             span.WriteInt(len, ref offset);
-            span.WriteInt(msg.MsgId, ref offset);
+            span.WriteInt(msg.TypeId, ref offset);
             span.WriteBytesWithoutLength(bytes, ref offset);
 
             lock (Writer)

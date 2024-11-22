@@ -1,55 +1,59 @@
-﻿
-using Geek.Server.Core.Actors;
+﻿using Geek.Server.Core.Actors;
 using Geek.Server.TestPressure.Logic;
-using PolymorphicMessagePack; 
+using Geek.Server.Core.PolymorphicType;
 using System.Net.WebSockets;
 using System.Text;
+using MemoryPack;
 
 namespace Geek.Server.TestPressure
 {
+    [MemoryPackable]
+    [MemoryPackUnion(0, typeof(FooClass))]
+    [MemoryPackUnion(1, typeof(BarClass))]
+    public partial interface IUnionSample
+    {
+    }
+
+    [MemoryPackable]
+    public partial class FooClass : IUnionSample
+    {
+        public int XYZ { get; set; }
+    }
+
+    [MemoryPackable]
+    public partial class BarClass : IUnionSample
+    {
+        public string? OPQ { get; set; }
+    }
+    
     class Program
     {
+        
+
+
         public static async Task Main(string[] args)
         {
+// ---
 
-            //Console.Title = "Client";
-            //using (var ws = new ClientWebSocket())
-            //{
-            //    await ws.ConnectAsync(new Uri("ws://localhost:6666/ws"), CancellationToken.None);
-            //    var buffer = new byte[256];
-            //    while (ws.State == WebSocketState.Open)
-            //    {
-            //        var result = await ws.ReceiveAsync(buffer, CancellationToken.None);
-            //        if (result.MessageType == WebSocketMessageType.Close)
-            //        {
-            //            await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
-            //        }
-            //        else
-            //        {
-            //            Console.WriteLine(Encoding.ASCII.GetString(buffer, 0, result.Count));
-            //        }
-            //    }
-            //}
-            //return;
+            IUnionSample data = new BarClass() {OPQ = "aaa"};
 
-            PolymorphicResolver.Instance.Init();
-            LogManager.Configuration = new XmlLoggingConfiguration("Configs/test_log.config");
+// Serialize as interface type.
+            var bin = MemoryPackSerializer.Serialize(data);
 
-            TestSettings.Load("Configs/test_config.json");
-            var maxCount = TestSettings.Ins.clientCount;
-            for (int i = 0; i < maxCount; i++)
+// Deserialize as interface type.
+            var reData = MemoryPackSerializer.Deserialize<IUnionSample>( bin);
+
+            switch (reData)
             {
-                new Client(CreateRoleId(i)).Start();
-                await Task.Delay(5);
+                // case FooClass x:
+                //     Console.WriteLine(x.XYZ);
+                //     break;
+                // case BarClass x:
+                //     Console.WriteLine(x.OPQ);
+                //     break;
+                default:
+                    break;
             }
-            Console.ReadLine();
-        }
-        private static long CreateRoleId(int index)
-        {
-            long actorType = (long)ActorType.Role;
-            long res = (long)666 << 46;//(63-17) 
-            res |= actorType << 42; //(63-4-17) 
-            return res | (long)index;
         }
     }
 }

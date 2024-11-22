@@ -102,7 +102,7 @@ namespace Geek.Server.Core.Storage
                 }
                 catch (Exception e)
                 {
-                    //LOGGER.Error(e);
+                    LOGGER.Error(e);
                 }
             }
         }

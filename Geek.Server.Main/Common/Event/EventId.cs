@@ -1,4 +1,4 @@
-﻿namespace Geek.Server.App.Common.Event
+﻿namespace Geek.Server.Main.Common.Event
 {
     public enum EventID
     {
