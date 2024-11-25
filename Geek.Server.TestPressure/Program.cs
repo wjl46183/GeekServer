@@ -36,7 +36,10 @@ namespace Geek.Server.TestPressure
             for (int i = 0; i < maxCount; i++)
             {
                 new Client(CreateRoleId(i)).Start();
-                await Task.Delay(5);
+                if (maxCount % 200 == 0)
+                {
+                    await Task.Delay(1);
+                }
             }
             Console.ReadLine();
         }
