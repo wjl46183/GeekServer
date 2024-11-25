@@ -91,6 +91,7 @@ namespace Geek.Server.Core.Storage
             {
                 try
                 {
+                    if (t.IsInterface) continue;
                     if (!BsonClassMap.IsClassMapRegistered(t))
                     {
                         var bsonClassMap = new BsonClassMap(t);

@@ -167,7 +167,7 @@ namespace Geek.Server.Core.Hotfix
             return true;
         }
 
-        public const string KEY = "MsgID";
+        public const string KEY = "TYPE_ID";
         private bool AddTcpHandler(Type type)
         {
             var attribute = (MsgMapping)type.GetCustomAttribute(typeof(MsgMapping), true);
