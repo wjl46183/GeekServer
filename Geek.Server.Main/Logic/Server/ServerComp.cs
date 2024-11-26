@@ -1,20 +1,9 @@
 ﻿using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
-using Geek.Server.Core.Storage;
-using MemoryPack;
+using ServerState = Server.Storage.Services.ServerState;
 
 namespace Geek.Server.Main.Logic.Server
 {
-    [MemoryPackable]
-    public partial class ServerState : CacheState
-    {
-        /// <summary>
-        /// 世界等级
-        /// </summary>
-        public int WorldLevel { get; set; } = 1;
-    }
-
-
     [Comp(ActorType.Server)]
     public class ServerComp : StateComp<ServerState>
     {
@@ -23,5 +12,4 @@ namespace Geek.Server.Main.Logic.Server
         /// </summary>
         public HashSet<long> OnlineSet = new();
     }
-
 }

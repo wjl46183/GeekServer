@@ -16,7 +16,7 @@ namespace Geek.Server.Core.Net.Websocket
             OnDisconnection(channel);
         }
 
-        public virtual void OnDisconnection(NetChannel channel)
+        protected virtual void OnDisconnection(NetChannel channel)
         {
             LOGGER.Debug($"{channel.RemoteAddress} 断开链接");
         }

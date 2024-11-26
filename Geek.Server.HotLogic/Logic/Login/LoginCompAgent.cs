@@ -8,6 +8,7 @@ using Geek.Server.Core.Utils;
 using Server.Logic.Common.Handler;
 using Server.Logic.Logic.Role.Base;
 using Server.Logic.Logic.Server;
+using Server.Storage.Login;
 
 namespace Server.Logic.Logic.Login
 {

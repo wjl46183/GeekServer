@@ -5,6 +5,7 @@ using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
 using Server.Logic.Common.Events;
 using Server.Logic.Logic.Role.Base;
+using Server.Storage.Role.Bag;
 
 namespace Server.Logic.Logic.Role.Bag
 {

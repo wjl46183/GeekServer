@@ -5,6 +5,7 @@ using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
 using Server.Logic.Logic.Server;
+using Server.Storage.Role.Pet;
 
 namespace Server.Logic.Logic.Role.Pet
 {

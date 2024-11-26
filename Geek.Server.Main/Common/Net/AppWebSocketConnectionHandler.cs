@@ -6,7 +6,7 @@ namespace Geek.Server.Main.Common.Net
 {
     public class AppWebSocketConnectionHandler : WebSocketConnectionHandler
     {
-        public override void OnDisconnection(NetChannel channel)
+        protected override void OnDisconnection(NetChannel channel)
         {
             base.OnDisconnection(channel);
             var sessionId = channel.GetData<long>(SessionManager.SESSIONID);

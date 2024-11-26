@@ -24,7 +24,7 @@ namespace Geek.Server.Core.Hotfix
 
         public static async Task<bool> LoadHotfixModule(string dllVersion = "")
         {
-            var dllPath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(dllVersion) ? "hotfix/Geek.Server.Hotfix.dll" : $"{dllVersion}/Geek.Server.Hotfix.dll");
+            var dllPath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(dllVersion) ? "hotfix/Geek.Server.HotLogic.dll" : $"{dllVersion}/Geek.Server.HotLogic.dll");
             var newModule = new HotfixModule(dllPath);
             bool reload = module != null;
             // 起服时失败会有异常抛出

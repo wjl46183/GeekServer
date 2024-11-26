@@ -32,8 +32,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Geek.Server.Data\Geek.Server.Data.csproj" />
+    <ProjectReference Include="..\Geek.Server.HotData\Geek.Server.HotData.csproj" />
     <ProjectReference Include="../Geek.Server.CodeGenerator/Geek.Server.CodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Geek.Server.Storage\Geek.Server.Storage.csproj" />
   </ItemGroup>
 
 </Project>

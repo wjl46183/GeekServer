@@ -5,6 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RootNamespace>Geek.Server.Generate</RootNamespace>
+		<LangVersion>11</LangVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>

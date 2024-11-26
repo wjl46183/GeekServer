@@ -1,14 +1,8 @@
 ﻿using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
-using Geek.Server.Core.Storage;
-using MemoryPack;
+using Server.Storage.Role.Pet;
 
 namespace Geek.Server.Main.Logic.Role.Pet;
-[MemoryPackable]
-public partial class PetState : CacheState
-{
-
-}
 
 [Comp(ActorType.Role)]
 public class PetComp : StateComp<PetState>

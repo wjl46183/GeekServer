@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Server.Storage</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MemoryPack" Version="1.21.3" />
+      <PackageReference Include="MemoryPack.Core" Version="1.21.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Geek.Server.CodeGenerator\Geek.Server.CodeGenerator.csproj" />
+      <ProjectReference Include="..\Geek.Server.Core\Geek.Server.Core.csproj" />
+    </ItemGroup>
+
+</Project>

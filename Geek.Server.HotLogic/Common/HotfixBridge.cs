@@ -26,7 +26,7 @@ namespace Server.Logic.Common
                 ActorMgr.ClearAgent();
                 return true;
             }
-            HotfixMgr.SetMsgGetter(Geek.Server.Data.MemoryPackTypeMapping.GetType);
+            HotfixMgr.SetMsgGetter(Geek.Server.HotData.MemoryPackTypeMapping.GetType);
 
             await TcpServer.Start(Settings.TcpPort, builder => builder.UseConnectionHandler<AppTcpConnectionHandler>());
             await WebSocketServer.Start(Settings.WebSocketUrl, new AppWebSocketConnectionHandler());

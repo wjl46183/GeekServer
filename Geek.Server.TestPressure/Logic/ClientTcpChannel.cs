@@ -92,7 +92,7 @@ namespace Geek.Server.TestPressure.Logic
 
             //消息id
             reader.TryReadBigEndian(out int msgId);
-            var msgType = Geek.Server.Data.MemoryPackTypeMapping.GetType(msgId);
+            var msgType = Geek.Server.HotData.MemoryPackTypeMapping.GetType(msgId);
             if (msgType == null)
             {
                 LOGGER.Error($"消息ID:{msgId} 找不到对应的Msg.");

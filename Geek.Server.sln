@@ -7,13 +7,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.Main", "Geek.Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.Core", "Geek.Server.Core\Geek.Server.Core.csproj", "{E3C7010E-B262-473C-9EC1-69396C5D85A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.Hotfix", "Geek.Server.Hotfix\Geek.Server.Hotfix.csproj", "{E47F7B43-E435-4B9E-AD10-1FE0D19F45CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.HotLogic", "Geek.Server.HotLogic\Geek.Server.HotLogic.csproj", "{E47F7B43-E435-4B9E-AD10-1FE0D19F45CF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.TestPressure", "Geek.Server.TestPressure\Geek.Server.TestPressure.csproj", "{BF726B95-BC72-471C-891B-516920E14C1F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.Data", "Geek.Server.Data\Geek.Server.Data.csproj", "{E664BD69-1FCC-45D9-925D-B1268370E076}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.HotData", "Geek.Server.HotData\Geek.Server.HotData.csproj", "{E664BD69-1FCC-45D9-925D-B1268370E076}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Geek.Server.CodeGenerator", "Geek.Server.CodeGenerator\Geek.Server.CodeGenerator.csproj", "{3C43CD22-AF8C-432D-A601-EB657D625A86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geek.Server.Storage", "Geek.Server.Storage\Geek.Server.Storage.csproj", "{6C1434F8-6B0B-4416-A8D7-8655DB0F8A90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{3C43CD22-AF8C-432D-A601-EB657D625A86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C43CD22-AF8C-432D-A601-EB657D625A86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C43CD22-AF8C-432D-A601-EB657D625A86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C1434F8-6B0B-4416-A8D7-8655DB0F8A90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C1434F8-6B0B-4416-A8D7-8655DB0F8A90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C1434F8-6B0B-4416-A8D7-8655DB0F8A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C1434F8-6B0B-4416-A8D7-8655DB0F8A90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

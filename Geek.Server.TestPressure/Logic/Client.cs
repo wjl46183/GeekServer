@@ -72,8 +72,9 @@ namespace Geek.Server.TestPressure.Logic
 
 
             await ReqLogin();
+            await Task.Delay(5000);
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 100; i++)
             {
                 await ReqBagInfo();
                 await Task.Delay(1000);
@@ -116,7 +117,7 @@ namespace Geek.Server.TestPressure.Logic
 
         public void OnRevice(Message msg)
         {
-            Log.Info($"收到消息:{msg.TypeId} {Geek.Server.Data.MemoryPackTypeMapping.GetType(msg.TypeId)} {JsonConvert.SerializeObject(msg)}"); 
+            Log.Info($"收到消息:{msg.TypeId} {Geek.Server.HotData.MemoryPackTypeMapping.GetType(msg.TypeId)} {JsonConvert.SerializeObject(msg)}"); 
 
             if (msg.TypeId == ResErrorCode.TYPE_ID)
             {

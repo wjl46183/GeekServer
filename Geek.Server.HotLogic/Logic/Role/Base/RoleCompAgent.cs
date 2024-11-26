@@ -11,6 +11,7 @@ using Geek.Server.Core.Timer;
 using Server.Logic.Common.Handler;
 using Server.Logic.Logic.Role.Bag;
 using Server.Logic.Logic.Server;
+using Server.Storage.Role.Base;
 
 namespace Server.Logic.Logic.Role.Base
 {
