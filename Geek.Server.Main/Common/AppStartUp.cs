@@ -6,6 +6,7 @@ using Geek.Server.Proto;
 using NLog;
 using NLog.Config;
 using Geek.Server.Core.PolymorphicType;
+using Geek.Server.Storage.Login;
 
 namespace Geek.Server.Main.Common
 {
@@ -24,7 +25,7 @@ namespace Geek.Server.Main.Common
                 GameDB.Init();
                 GameDB.Open();
                 Log.Info($"regist comps...");
-                await CompRegister.Init();
+                await CompRegister.Init(typeof(LoginState).Assembly);
                 Log.Info($"load hotfix module");
                 await HotfixMgr.LoadHotfixModule();
 

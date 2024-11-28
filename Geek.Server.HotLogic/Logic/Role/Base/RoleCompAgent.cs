@@ -2,7 +2,6 @@
 using Geek.Server.Main.Common;
 using Geek.Server.Main.Common.Event;
 using Geek.Server.Main.Common.Session;
-using Geek.Server.Main.Logic.Role.Base;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
@@ -11,7 +10,8 @@ using Geek.Server.Core.Timer;
 using Server.Logic.Common.Handler;
 using Server.Logic.Logic.Role.Bag;
 using Server.Logic.Logic.Server;
-using Server.Storage.Role.Base;
+using Geek.Server.Storage.Role.Base;
+using Geek.Server.Storage.Role.Base.Comp;
 
 namespace Server.Logic.Logic.Role.Base
 {
@@ -29,7 +29,7 @@ namespace Server.Logic.Logic.Role.Base
         }
     }
 
-    public class RoleCompAgent : StateCompAgent<RoleComp, RoleState>, ICrossDay
+    public class RoleCompAgent : StateCompAgent<RoleStateComp, RoleState>, ICrossDay
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -71,18 +71,16 @@ namespace Server.Logic.Logic.Role.Base
 
         private ResLogin BuildLoginMsg()
         {
-            var res = new ResLogin()
+            var res = ResLogin.Create();
+            res.Code = 0;
+            res.UserInfo = UserInfo.Create();
             {
-                Code = 0,
-                UserInfo = new UserInfo()
-                {
-                    CreateTime = State.CreateTime.Ticks,
-                    Level = State.Level,
-                    RoleId = State.RoleId,
-                    RoleName = State.RoleName,
-                    VipLevel = State.VipLevel
-                }
-            };
+                res.UserInfo.CreateTime = State.CreateTime.Ticks;
+                res.UserInfo.Level = State.Level;
+                res.UserInfo.RoleId = State.RoleId;
+                res.UserInfo.RoleName = State.RoleName;
+                res.UserInfo.VipLevel = State.VipLevel;
+            }
             return res;
         }
 

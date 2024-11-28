@@ -29,7 +29,7 @@ namespace Geek.Server.Core.Storage
                                 var col = curDataBase.GetCollection<BsonDocument>(jsonDir.Name);
                                 var fileStr = File.ReadAllText(file.FullName);
                                 BsonDocument bsonElements = BsonDocument.Parse(fileStr);
-                                var filter = Builders<BsonDocument>.Filter.Eq(CacheState.UniqueId, bsonElements.GetValue(CacheState.UniqueId));
+                                var filter = Builders<BsonDocument>.Filter.Eq(BaseState.UniqueId, bsonElements.GetValue(BaseState.UniqueId));
                                 var ret = new ReplaceOneModel<BsonDocument>(filter, bsonElements) { IsUpsert = true };
                                 batchList.Add(ret);
                                 //保存数据

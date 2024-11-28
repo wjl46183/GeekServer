@@ -13,8 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Geek.Server.CodeGenerator\Geek.Server.CodeGenerator.csproj" />
-      <ProjectReference Include="..\Geek.Server.Core\Geek.Server.Core.csproj" />
+        <ProjectReference Include="..\Geek.Server.CodeGenerator\Geek.Server.CodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Geek.Server.Core\Geek.Server.Core.csproj" />
     </ItemGroup>
 
 </Project>

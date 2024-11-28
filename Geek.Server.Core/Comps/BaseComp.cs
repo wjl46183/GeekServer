@@ -4,6 +4,9 @@ using Geek.Server.Core.Hotfix.Agent;
 
 namespace Geek.Server.Core.Comps
 {
+    /// <summary>
+    /// 所有组件的基类
+    /// </summary>
     public abstract class BaseComp
     {
         private ICompAgent _cacheAgent = null;

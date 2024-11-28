@@ -17,7 +17,7 @@ namespace Geek.Server.CodeGenerator.Utils
         
         public static void LogNormal(this GeneratorExecutionContext context, string msg)
         {
-            DiagnosticDescriptor InvalidXmlWarning = new DiagnosticDescriptor(id: "Warning",
+            DiagnosticDescriptor InvalidXmlWarning = new DiagnosticDescriptor(id: "Info",
                 title: "Code Generator Info",
                 messageFormat: "{0}",
                 category: "CodeGenerator",

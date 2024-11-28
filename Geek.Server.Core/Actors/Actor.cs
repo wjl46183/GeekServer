@@ -10,6 +10,7 @@ namespace Geek.Server.Core.Actors
     {
 
         private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
+        
 
         private readonly ConcurrentDictionary<Type, BaseComp> compDic = new();
 

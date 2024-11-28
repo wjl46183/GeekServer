@@ -1,15 +1,15 @@
 ﻿using Geek.Server.Main.Common.Event;
-using Geek.Server.Main.Logic.Role.Pet;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
 using Server.Logic.Logic.Server;
-using Server.Storage.Role.Pet;
+using Geek.Server.Storage.Role.Pet;
+using Geek.Server.Storage.Role.Pet.Comp;
 
 namespace Server.Logic.Logic.Role.Pet
 {
-    public class PetCompAgent : StateCompAgent<PetComp, PetState>
+    public class PetCompAgent : StateCompAgent<PetStateComp, PetState>
     {
 
         readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();

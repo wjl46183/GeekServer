@@ -240,6 +240,7 @@ namespace Geek.Server.Core.Net.Tcp
             span.WriteInt(len, ref offset);
             span.WriteInt(msg.TypeId, ref offset);
             span.WriteBytesWithoutLength(bytes, ref offset);
+            // Message.pool.ReturnObject(msg.TypeId,msg);
 
             lock (Writer)
             {

@@ -24,42 +24,54 @@ namespace Geek.Server.CodeGenerator.MemoryPack
 
         public void Execute(GeneratorExecutionContext context)
         {
-            Logger.LogNormal(context,$"==================== 生成程序集： {context.Compilation.AssemblyName} ====================");
+            Logger.LogNormal(context,
+                $"程序集： {context.Compilation.AssemblyName} 自动生成 MemoryPack 代码 -> 开始");
             if (context.SyntaxReceiver is MemoryPackFilter receiver)
             {
-                if (receiver.CandidateClasses.Count <= 0)
+                if (receiver.CandidateClasses.Count > 0)
                 {
-                    return;
-                }
-                Dictionary<int, string> typeDict = new Dictionary<int, string>();
-                foreach (var typeDeclaration in receiver.CandidateClasses)
-                {
-                    var namespaceName = GetNamespace(typeDeclaration);
-                    var className = typeDeclaration.Identifier.Text;
-                    var sidValue = className.GetHashCode();
+                    Dictionary<int, string> typeDict = new Dictionary<int, string>();
+                    foreach (var typeDeclaration in receiver.CandidateClasses)
+                    {
+                        var namespaceName = GetNamespace(typeDeclaration);
+                        var className = typeDeclaration.Identifier.Text;
+                        var sidValue = className.GetHashCode();
 
-                    bool isOverride = false;
-                    var model = context.Compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
-                    var classSymbol = model.GetDeclaredSymbol(typeDeclaration);
-                    if (classSymbol != null)
-                    {
-                        var interfaces = classSymbol.AllInterfaces;
-                        isOverride = interfaces.Any(interfaceSymbol => interfaceSymbol.Name.ToString() == "ITypeId");
+                        bool isOverride = false;
+                        bool isPoolinterface = false;
+                        var model = context.Compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
+                        var classSymbol = model.GetDeclaredSymbol(typeDeclaration);
+                        if (classSymbol != null)
+                        {
+                            var interfaces = classSymbol.AllInterfaces;
+                            isOverride = interfaces.Any(interfaceSymbol =>
+                                interfaceSymbol.Name.ToString() == "ITypeId");
+                            isPoolinterface = interfaces.Any(interfaceSymbol =>
+                                interfaceSymbol.Name.ToString() == "ISafeObjectPool");
+                        }
+
+                        var sourceBuilder = CodeTemplate.getMemoryPackSidStr(namespaceName, className, sidValue,
+                            isOverride, isPoolinterface);
+                        if (typeDict.ContainsKey(sidValue))
+                        {
+                            Logger.LogError(context,
+                                $"重复类型ID: {sidValue} 与类型: {typeDict[sidValue]} 重复，尝试修改类型名称");
+                            throw new Exception($"重复类型ID: {sidValue} 与类型: {typeDict[sidValue]} 重复，尝试修改类型名称");
+                        }
+
+                        typeDict[sidValue] = $"{namespaceName}.{className}";
+                        context.AddSource($"{className}_MemoryPack_Sid.g.cs",
+                            SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
                     }
-                    
-                    var sourceBuilder = CodeTemplate.getMemoryPackSidStr(namespaceName, className, sidValue,isOverride);
-                    if (typeDict.ContainsKey(sidValue))
-                    {
-                        throw new Exception($"重复类型ID: {sidValue} 与类型: {typeDict[sidValue]} 重复，尝试修改类型名称");
-                    }
-                    typeDict[sidValue] = $"{namespaceName}.{className}";
-                    context.AddSource($"{className}_MemoryPack_Sid.g.cs",
-                        SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
+
+                    string mapNamespaceName = context.Compilation.AssemblyName;
+                    context.AddSource($"MemoryPackTypeMapping.g.cs",
+                        SourceText.From(CodeTemplate.getMsgFactoryStr(mapNamespaceName, typeDict), Encoding.UTF8));
                 }
-                string mapNamespaceName = context.Compilation.AssemblyName;
-                context.AddSource($"MemoryPackTypeMapping.g.cs",
-                    SourceText.From(CodeTemplate.getMsgFactoryStr(mapNamespaceName,typeDict), Encoding.UTF8));
             }
+
+            Logger.LogNormal(context,
+                $"程序集： {context.Compilation.AssemblyName} 自动生成 MemoryPack 代码 -> 完成");
         }
 
         private string GetNamespace(TypeDeclarationSyntax typeDeclaration)
@@ -76,6 +88,7 @@ namespace Geek.Server.CodeGenerator.MemoryPack
                 {
                     return namespaceDeclaration.Name.ToString();
                 }
+
                 parent = parent.Parent;
             }
 

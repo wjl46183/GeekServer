@@ -5,8 +5,8 @@
         public void Open(string url, string dbName);
         public void Close();
         public Task Flush();
-        public Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : CacheState, new();
-        public Task SaveState<TState>(TState state) where TState : CacheState;
+        public Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : BaseState, new();
+        public Task SaveState<TState>(TState state) where TState : BaseState;
     }
 
     public class GameDB
@@ -41,12 +41,12 @@
             dbImpler.Close();
         }
 
-        public static Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : CacheState, new()
+        public static Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : BaseState, new()
         {
             return dbImpler.LoadState(id, defaultGetter);
         }
 
-        public static async Task SaveState<TState>(TState state) where TState : CacheState
+        public static async Task SaveState<TState>(TState state) where TState : BaseState
         {
             await dbImpler.SaveState(state);
         }

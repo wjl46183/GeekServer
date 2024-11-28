@@ -53,11 +53,9 @@ namespace Geek.Server.Main.Common.Session
             {
                 if (oldSession.Sign != session.Sign)
                 {
-                    var msg = new ResPrompt
-                    {
-                        Type = 5,
-                        Content = "你的账号已在其他设备上登陆"
-                    };
+                    var msg = ResPrompt.Create();
+                    msg.Type = 5;
+                    msg.Content = "你的账号已在其他设备上登陆";
                     oldSession.WriteAsync(msg);
                 }
                 // 新连接 or 顶号

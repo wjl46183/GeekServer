@@ -42,9 +42,9 @@ namespace Geek.Server.Core.Storage
             }
         }
 
-        public async Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : CacheState, new()
+        public async Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : BaseState, new()
         {
-            var filter = Builders<TState>.Filter.Eq(CacheState.UniqueId, id);
+            var filter = Builders<TState>.Filter.Eq(BaseState.UniqueId, id);
             var stateName = typeof(TState).FullName;
             var col = CurDB.GetCollection<TState>(stateName);
 
@@ -56,9 +56,9 @@ namespace Geek.Server.Core.Storage
             return state;
         }
 
-        public async Task SaveState<TState>(TState state) where TState : CacheState
+        public async Task SaveState<TState>(TState state) where TState : BaseState
         {
-            var filter = Builders<TState>.Filter.Eq(CacheState.UniqueId, state.Id);
+            var filter = Builders<TState>.Filter.Eq(BaseState.UniqueId, state.Id);
             var stateName = typeof(TState).FullName;
             var col = CurDB.GetCollection<TState>(stateName);
             var result = await col.ReplaceOneAsync(filter, state, REPLACE_OPTIONS);

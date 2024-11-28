@@ -1,14 +1,14 @@
-﻿using Geek.Server.Main.Logic.Server;
-using Geek.Server.Core.Actors;
+﻿using Geek.Server.Core.Actors;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Timer.Handler;
 using Geek.Server.Core.Utils;
 using Server.Logic.Logic.Role.Base;
-using Server.Storage.Services;
+using Geek.Server.Storage.Services;
+using Geek.Server.Storage.Services.Comp;
 
 namespace Server.Logic.Logic.Server
 {
-    public class ServerCompAgent : StateCompAgent<ServerComp, ServerState>
+    public class ServerCompAgent : StateCompAgent<ServerStateComp, ServerState>
     {
         readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
@@ -39,7 +39,7 @@ namespace Server.Logic.Logic.Server
         [Discard]
         public virtual ValueTask AddOnlineRole(long actorId)
         {
-            Comp.OnlineSet.Add(actorId);
+            Comp.dynamicServerState.OnlineSet.Add(actorId);
             return ValueTask.CompletedTask;
         }
 
@@ -47,7 +47,7 @@ namespace Server.Logic.Logic.Server
         [Discard]
         public virtual ValueTask RemoveOnlineRole(long actorId)
         {
-            Comp.OnlineSet.Remove(actorId);
+            Comp.dynamicServerState.OnlineSet.Remove(actorId);
             return ValueTask.CompletedTask;
         }
 
@@ -56,7 +56,7 @@ namespace Server.Logic.Logic.Server
             var serverComp = await ActorMgr.GetCompAgent<ServerCompAgent>();
             serverComp.Tell(async () =>
             {
-                foreach (var roleId in serverComp.Comp.OnlineSet)
+                foreach (var roleId in serverComp.Comp.dynamicServerState.OnlineSet)
                 {
                     var roleComp = await ActorMgr.GetCompAgent<RoleCompAgent>(roleId);
                     roleComp.Tell(() => func(roleComp));
@@ -86,7 +86,7 @@ namespace Server.Logic.Logic.Server
         [Service]
         public virtual Task<bool> IsOnline(long roleId)
         {
-            foreach (var id in Comp.OnlineSet)
+            foreach (var id in Comp.dynamicServerState.OnlineSet)
             {
                 if (id == roleId)
                     return Task.FromResult(true);

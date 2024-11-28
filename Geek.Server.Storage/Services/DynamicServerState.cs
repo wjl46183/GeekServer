@@ -6,11 +6,11 @@ using MemoryPack;
 namespace Geek.Server.Storage.Services;
 
 [MemoryPackable]
-[SaveState(ActorType.Server)]
-public partial class ServerState : BaseState
+[DynamicState<ServerState>]
+public partial class DynamicServerState : IDynamicState
 {
     /// <summary>
-    /// 世界等级
+    /// 存放在此处的数据不会回存到数据库
     /// </summary>
-    public int WorldLevel { get; set; } = 1;
+    public HashSet<long> OnlineSet = new();
 }

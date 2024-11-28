@@ -1,18 +1,18 @@
 ﻿using Geek.Server.Main.Common;
 using Geek.Server.Main.Common.Session;
-using Geek.Server.Main.Logic.Login;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Net;
 using Geek.Server.Core.Utils;
+using Geek.Server.Storage.Login;
+using Geek.Server.Storage.Login.Comp;
 using Server.Logic.Common.Handler;
 using Server.Logic.Logic.Role.Base;
 using Server.Logic.Logic.Server;
-using Server.Storage.Login;
 
 namespace Server.Logic.Logic.Login
 {
-    public class LoginCompAgent : StateCompAgent<LoginComp, LoginState>
+    public class LoginCompAgent : StateCompAgent<LoginStateComp, LoginState>
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -39,7 +39,7 @@ namespace Server.Logic.Logic.Login
                 //没有老角色，创建新号
                 roleId = IdGenerator.GetActorID(ActorType.Role);
                 CreateRoleToPlayer(reqLogin.UserName, reqLogin.SdkType, roleId);
-                Log.Info("创建新号:" + roleId);
+                // Log.Info("创建新号:" + roleId);
             }
 
             //添加到session
@@ -81,10 +81,10 @@ namespace Server.Logic.Logic.Login
             State.PlayerMap.TryGetValue(playerId, out var info);
             if (info == null)
             {
-                info = new PlayerInfo();
+                info = PlayerInfo.Create();
                 info.playerId = playerId;
-                info.SdkType = sdkType;
-                info.UserName = userName;
+                info.sdkType = sdkType;
+                info.userName = userName;
                 State.PlayerMap[playerId] = info;
             } 
             info.RoleMap[Settings.ServerId] = roleId;

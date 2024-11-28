@@ -1,15 +1,15 @@
-﻿
-using Geek.Server.Main.Common.Event;
-using Geek.Server.Main.Logic.Role.Bag;
+﻿using Geek.Server.Main.Common.Event;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
 using Server.Logic.Common.Events;
 using Server.Logic.Logic.Role.Base;
-using Server.Storage.Role.Bag;
+using Geek.Server.Storage.Role.Bag;
+using Geek.Server.Storage.Role.Bag.Comp;
 
 namespace Server.Logic.Logic.Role.Bag
 {
-    public class BagCompAgent : StateCompAgent<BagComp, BagState>
+    public class BagCompAgent : StateCompAgent<BagStateComp
+        , BagState>
     {
         readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
@@ -24,16 +24,35 @@ namespace Server.Logic.Logic.Role.Bag
 
         private ResBagInfo BuildInfoMsg()
         {
-            var res = new ResBagInfo();
-            foreach (var kv in State.ItemMap)
-                res.ItemDic[kv.Key] = kv.Value;
+            ResBagInfo res = ResBagInfo.Create();
+            // foreach (var kv in State.ItemMap)
+            //     res.ItemDic[kv.Key] = kv.Value;
+            // res.ItemDic[100] = 2;
+            return res;
+        }
+
+        private ResBagInfo BuildInfoMsg2()
+        {
+            // ResBagInfo res = Message.pool.GetObject<ResBagInfo>(ResBagInfo.TYPE_ID);
+            ResBagInfo res = ResBagInfo.Create();
+
+            // res.ItemDic[100] = 1;
             return res;
         }
 
         public async Task GetBagInfo(ReqBagInfo reqMsg)
         {
-            var ret = BuildInfoMsg();
-            await this.NotifyClient(ret, reqMsg.SerialId);
+            int a = Random.Shared.Next(100);
+            if (a > 50)
+            {
+                var ret = BuildInfoMsg();
+                await this.NotifyClient(ret, reqMsg.SerialId);
+            }
+            else
+            {
+                var ret = BuildInfoMsg2();
+                await this.NotifyClient(ret, reqMsg.SerialId);
+            }
         }
 
         /// <summary>
@@ -49,12 +68,9 @@ namespace Server.Logic.Logic.Role.Bag
             //合成成功后分发一个获得宠物的事件(在PetCompAgent中监听此事件)
             this.Dispatch(EventID.GotNewPet, new OneParam<int>(1000));
 
-            var res = new ResComposePet();
+            var res = ResComposePet.Create();
             res.PetId = 1000;
             await this.NotifyClient(res, reqMsg.SerialId);
         }
-
-
-
     }
 }

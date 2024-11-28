@@ -1,13 +1,16 @@
+using Geek.Server.Core.Actors;
+using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
 using MemoryPack;
 
-namespace Server.Storage.Role.Base;
+namespace Geek.Server.Storage.Role.Base;
 
 [MemoryPackable]
-public partial class RoleState : CacheState
+[SaveState(ActorType.Role)]
+public partial class RoleState : BaseState
 {
     public long RoleId => Id;
-    public string RoleName;
+    public string RoleName = string.Empty;
     public int Level = 1;
     public int VipLevel = 1;
     public DateTime CreateTime;

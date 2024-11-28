@@ -8,7 +8,7 @@ namespace Geek.Server.Core.Storage
 {
     [MemoryPackable]
     [BsonIgnoreExtraElements(true, Inherited = true)]
-    public partial class CacheState
+    public partial class BaseState
     {
         public const string UniqueId = nameof(Id);
 
@@ -49,11 +49,11 @@ namespace Geek.Server.Core.Storage
             new AsyncLocal<ArrayBufferWriter<byte>>();
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private CacheState State { get; }
+        private BaseState State { get; }
         private UInt128 CurrentHash { get; set; }
         private UInt128 DBHash { get; set; }
 
-        public StateHash(CacheState state, bool loadFromDB = false)
+        public StateHash(BaseState state, bool loadFromDB = false)
         {
             State = state;
             CurrentHash = GetHash();

@@ -45,7 +45,7 @@ namespace Geek.Server.Core.Comps
         public static readonly StatisticsTool statisticsTool = new();
     }
 
-    public abstract class StateComp<TState> : BaseComp, IState where TState : CacheState, new()
+    public abstract class StateComp<TState> : BaseComp, IState where TState : BaseState, new()
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
         static readonly ConcurrentDictionary<long, TState> stateDic = new();

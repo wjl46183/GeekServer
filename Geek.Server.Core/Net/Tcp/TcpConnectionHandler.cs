@@ -12,11 +12,11 @@ namespace Geek.Server.Core.Net.Tcp
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
         {
-            LOGGER.Debug($"{connection.RemoteEndPoint?.ToString()} 链成功");
+            // LOGGER.Debug($"{connection.RemoteEndPoint?.ToString()} 链成功");
             NetChannel channel = null;
             channel = new TcpChannel(connection, async (msg) => await Dispatcher(channel, msg));
             await channel.StartAsync();
-            LOGGER.Debug($"{channel.RemoteAddress} 断开链接");
+            // LOGGER.Debug($"{channel.RemoteAddress} 断开链接");
             OnDisconnection(channel);
         } 
 

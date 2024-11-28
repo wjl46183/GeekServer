@@ -15,12 +15,10 @@ public static class NetChannelExtensions
         }
         if (uniId < 0)
         {
-            ResErrorCode res = new ResErrorCode
-            {
-                SerialId = uniId,
-                ErrCode = (int)code,
-                Desc = desc
-            };
+            ResErrorCode res = ResErrorCode.Create();
+            res.SerialId = uniId;
+            res.ErrCode = (int)code;
+            res.Desc = desc;
             channel.Write(res);
         }
     }

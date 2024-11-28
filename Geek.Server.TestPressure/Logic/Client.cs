@@ -71,21 +71,21 @@ namespace Geek.Server.TestPressure.Logic
             }
 
 
-            await ReqLogin();
+            await DoReqLogin();
             await Task.Delay(5000);
 
             for (int i = 0; i < 100; i++)
             {
-                await ReqBagInfo();
+                await DoReqBagInfo();
                 await Task.Delay(1000);
             }
-            await ReqComposePet();
+            await DoReqComposePet();
         }
 
-        private Task<bool> ReqLogin()
+        private Task<bool> DoReqLogin()
         {
             //登陆
-            var req = new ReqLogin();
+            var req = ReqLogin.Create();
             req.SdkType = 0;
             req.SdkToken = "555";
             req.UserName = "name" + id;
@@ -94,14 +94,16 @@ namespace Geek.Server.TestPressure.Logic
             return SendMsgAndWaitBack(req);
         }
 
-        private Task ReqBagInfo()
+        private Task DoReqBagInfo()
         {
-            return SendMsgAndWaitBack(new ReqBagInfo());
+            return SendMsgAndWaitBack(ReqBagInfo.Create());
         }
 
-        private Task ReqComposePet()
+        private Task DoReqComposePet()
         {
-            return SendMsgAndWaitBack(new ReqComposePet() { FragmentId = 1000 });
+            var req = ReqComposePet.Create();
+            req.FragmentId = 1000;
+            return SendMsgAndWaitBack(req);
         }
          
         async Task<bool> SendMsgAndWaitBack(Message msg)

@@ -20,7 +20,6 @@ namespace Geek.Server.Proto
     [MemoryPackable]
     public partial class ResBagInfo : Message
     {
-        
         public Dictionary<int, long> ItemDic { get; set; } = new Dictionary<int, long>();
     }
 
