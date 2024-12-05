@@ -3,6 +3,7 @@ using Geek.Server.Main.Common.Session;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Net;
+using Geek.Server.Core.Net.BaseHandler;
 using Geek.Server.Core.Utils;
 using Geek.Server.Storage.Login;
 using Geek.Server.Storage.Login.Comp;
@@ -12,9 +13,15 @@ using Server.Logic.Logic.Server;
 
 namespace Server.Logic.Logic.Login
 {
-    public class LoginCompAgent : StateCompAgent<LoginStateComp, LoginState>
+    public class LoginCompAgent : BaseCompAgent<LoginStateComp>
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        [BindEvent]
+        public async Task OnLogin(ReqLogin reqLogin)
+        {
+            
+        }
 
         public async Task OnLogin(NetChannel channel, ReqLogin reqLogin)
         {
@@ -66,7 +73,7 @@ namespace Server.Logic.Logic.Login
         private long GetRoleIdOfPlayer(string userName, int sdkType)
         {
             var playerId = $"{sdkType}_{userName}";
-            if (State.PlayerMap.TryGetValue(playerId, out var state))
+            if (Comp.State.PlayerMap.TryGetValue(playerId, out var state))
             {
                 if (state.RoleMap.TryGetValue(Settings.ServerId, out var roleId))
                     return roleId;
@@ -78,14 +85,14 @@ namespace Server.Logic.Logic.Login
         private void CreateRoleToPlayer(string userName, int sdkType, long roleId)
         {
             var playerId = $"{sdkType}_{userName}";
-            State.PlayerMap.TryGetValue(playerId, out var info);
+            Comp.State.PlayerMap.TryGetValue(playerId, out var info);
             if (info == null)
             {
                 info = PlayerInfo.Create();
                 info.playerId = playerId;
                 info.sdkType = sdkType;
                 info.userName = userName;
-                State.PlayerMap[playerId] = info;
+                Comp.State.PlayerMap[playerId] = info;
             } 
             info.RoleMap[Settings.ServerId] = roleId;
         }

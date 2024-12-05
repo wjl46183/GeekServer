@@ -1,5 +1,6 @@
 ﻿using Geek.Server.Main.Common.Event;
 using Geek.Server.Core.Hotfix.Agent;
+using Geek.Server.Core.Net.BaseHandler;
 using Geek.Server.Core.Utils;
 using Server.Logic.Common.Events;
 using Server.Logic.Logic.Role.Base;
@@ -8,17 +9,16 @@ using Geek.Server.Storage.Role.Bag.Comp;
 
 namespace Server.Logic.Logic.Role.Bag
 {
-    public class BagCompAgent : StateCompAgent<BagStateComp
-        , BagState>
+    public class BagCompAgent : BaseCompAgent<BagStateComp>
     {
         readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
         public override void Active()
         {
-            if (State.ItemMap.Count <= 0)
+            if (Comp.State.ItemMap.Count <= 0)
             {
-                State.ItemMap.Add(101, 1);
-                State.ItemMap.Add(103, 100);
+                Comp.State.ItemMap.Add(101, 1);
+                Comp.State.ItemMap.Add(103, 100);
             }
         }
 
@@ -40,6 +40,7 @@ namespace Server.Logic.Logic.Role.Bag
             return res;
         }
 
+        [BindEvent]
         public async Task GetBagInfo(ReqBagInfo reqMsg)
         {
             int a = Random.Shared.Next(100);

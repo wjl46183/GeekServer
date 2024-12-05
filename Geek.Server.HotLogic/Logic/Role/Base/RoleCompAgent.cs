@@ -29,7 +29,7 @@ namespace Server.Logic.Logic.Role.Base
         }
     }
 
-    public class RoleCompAgent : StateCompAgent<RoleStateComp, RoleState>, ICrossDay
+    public class RoleCompAgent : BaseCompAgent<RoleStateComp>, ICrossDay
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -48,14 +48,14 @@ namespace Server.Logic.Logic.Role.Base
             SetAutoRecycle(false);
             if (isNewRole)
             {
-                State.CreateTime = DateTime.Now;
-                State.Level = 1;
-                State.VipLevel = 1;
-                State.RoleName = new System.Random().Next(1000, 10000).ToString();//随机给一个
+                Comp.State.CreateTime = DateTime.Now;
+                Comp.State.Level = 1;
+                Comp.State.VipLevel = 1;
+                Comp.State.RoleName = new System.Random().Next(1000, 10000).ToString();//随机给一个
                 //激活背包组件
                 await GetCompAgent<BagCompAgent>();
             }
-            State.LoginTime = DateTime.Now;
+            Comp.State.LoginTime = DateTime.Now;
             return BuildLoginMsg();
         }
 
@@ -75,11 +75,11 @@ namespace Server.Logic.Logic.Role.Base
             res.Code = 0;
             res.UserInfo = UserInfo.Create();
             {
-                res.UserInfo.CreateTime = State.CreateTime.Ticks;
-                res.UserInfo.Level = State.Level;
-                res.UserInfo.RoleId = State.RoleId;
-                res.UserInfo.RoleName = State.RoleName;
-                res.UserInfo.VipLevel = State.VipLevel;
+                res.UserInfo.CreateTime = Comp.State.CreateTime.Ticks;
+                res.UserInfo.Level = Comp.State.Level;
+                res.UserInfo.RoleId = Comp.State.RoleId;
+                res.UserInfo.RoleName = Comp.State.RoleName;
+                res.UserInfo.VipLevel = Comp.State.VipLevel;
             }
             return res;
         }

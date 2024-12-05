@@ -62,13 +62,13 @@ namespace Geek.Server.Core.Actors
                     return await GetLifeActor(actorId).SendAsync(() =>
                     {
                         activeTimeDic[actorId] = now;
-                        return actorDic.GetOrAdd(actorId, k => new Actor(k, IdGenerator.GetActorType(k)));
+                        return actorDic.GetOrAdd(actorId, id => new Actor(id, IdGenerator.GetActorType(id)));
                     });
                 }
             }
             else
             {
-                return actorDic.GetOrAdd(actorId, k => new Actor(k, IdGenerator.GetActorType(k)));
+                return actorDic.GetOrAdd(actorId, id => new Actor(id, IdGenerator.GetActorType(id)));
             }
         }
 

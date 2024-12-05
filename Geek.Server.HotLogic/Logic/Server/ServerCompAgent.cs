@@ -8,7 +8,7 @@ using Geek.Server.Storage.Services.Comp;
 
 namespace Server.Logic.Logic.Server
 {
-    public class ServerCompAgent : StateCompAgent<ServerStateComp, ServerState>
+    public class ServerCompAgent : BaseCompAgent<ServerStateComp>
     {
         readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
 
@@ -80,7 +80,7 @@ namespace Server.Logic.Logic.Server
         [ThreadSafe]
         public virtual Task<int> GetWorldLevel()
         {
-            return Task.FromResult(State.WorldLevel);
+            return Task.FromResult(Comp.State.WorldLevel);
         }
 
         [Service]
@@ -99,7 +99,7 @@ namespace Server.Logic.Logic.Server
         [ThreadSafe]
         public virtual int DoSomething0()
         {
-            return State.WorldLevel;
+            return Comp.State.WorldLevel;
         }
 
         [Discard]

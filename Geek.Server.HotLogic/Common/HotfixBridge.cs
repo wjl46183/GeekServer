@@ -3,13 +3,17 @@ using Geek.Server.Main.Common.Net;
 using Geek.Server.Main.Common.Session;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
+using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix;
+using Geek.Server.Core.Net;
 using Geek.Server.Core.Net.Http;
 using Geek.Server.Core.Net.Tcp;
 using Geek.Server.Core.Net.Websocket;
 using Geek.Server.Core.Timer;
 using Geek.Server.Core.Utils;
 using Microsoft.AspNetCore.Connections;
+using Server.Logic.Logic.Login;
+using Server.Logic.Logic.Role.Base;
 
 namespace Server.Logic.Common
 {
@@ -19,6 +23,22 @@ namespace Server.Logic.Common
 
         public ServerType BridgeType => ServerType.Game;
 
+        public static async Task OnHandleLoginEvent(long actorId, Message evt)
+        {
+            var login = evt as ReqLogin;
+            
+            //单个（优先级）
+            await (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login);
+
+            //多个（相同优先级）
+            await Task.WhenAll(new []{
+                (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login),
+                (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login),
+                (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login),
+            });
+            
+        }
+
         public async Task<bool> OnLoadSuccess(bool reload)
         {
             if (reload)
@@ -27,6 +47,12 @@ namespace Server.Logic.Common
                 return true;
             }
             HotfixMgr.SetMsgGetter(Geek.Server.HotData.MemoryPackTypeMapping.GetType);
+            
+            Dictionary<int,EventHandleMgr.HandleEvent> dict = new();
+            dict[1] = OnHandleLoginEvent;
+            EventHandleMgr.SetHandleMap(dict);
+            
+            await EventHandleMgr.Handle(1111, ReqLogin.Create());
 
             await TcpServer.Start(Settings.TcpPort, builder => builder.UseConnectionHandler<AppTcpConnectionHandler>());
             await WebSocketServer.Start(Settings.WebSocketUrl, new AppWebSocketConnectionHandler());

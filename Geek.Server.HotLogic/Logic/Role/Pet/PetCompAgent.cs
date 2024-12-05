@@ -9,7 +9,7 @@ using Geek.Server.Storage.Role.Pet.Comp;
 
 namespace Server.Logic.Logic.Role.Pet
 {
-    public class PetCompAgent : StateCompAgent<PetStateComp, PetState>
+    public class PetCompAgent : BaseCompAgent<PetStateComp>
     {
 
         readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();

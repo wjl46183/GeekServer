@@ -1,4 +1,5 @@
-﻿using Geek.Server.Core.Hotfix;
+﻿using Geek.Server.Core.Events;
+using Geek.Server.Core.Hotfix;
 using MemoryPack;
 using Microsoft.AspNetCore.Connections;
 
@@ -30,6 +31,10 @@ namespace Geek.Server.Core.Net.Tcp
                 return;
 
            // LOGGER.Debug($"-------------收到消息{msg.MsgId} {msg.GetType()}");
+           
+           var sessionId = channel.GetData<long>("SESSION_ID");
+           await EventHandleMgr.Handle(sessionId, msg);
+           channel.Write(msg);
             var handler = HotfixMgr.GetTcpHandler(msg.TypeId);
             if (handler == null)
             {
