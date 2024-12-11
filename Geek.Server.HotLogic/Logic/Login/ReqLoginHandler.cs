@@ -1,7 +1,7 @@
 ﻿
 using Geek.Server.Core.Net.BaseHandler;
 
-namespace Server.Logic.Logic.Login
+namespace Geek.Server.HotLogic.Logic.Login
 {
     [MsgMapping(typeof(ReqLogin))]
     internal class ReqLoginHandler : GlobalCompHandler<LoginCompAgent>

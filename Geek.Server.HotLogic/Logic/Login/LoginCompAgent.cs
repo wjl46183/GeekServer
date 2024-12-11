@@ -7,20 +7,63 @@ using Geek.Server.Core.Net.BaseHandler;
 using Geek.Server.Core.Utils;
 using Geek.Server.Storage.Login;
 using Geek.Server.Storage.Login.Comp;
-using Server.Logic.Common.Handler;
-using Server.Logic.Logic.Role.Base;
-using Server.Logic.Logic.Server;
+using Geek.Server.HotLogic.Common.Handler;
+using Geek.Server.HotLogic.Logic.Role.Base;
+using Geek.Server.HotLogic.Logic.Server;
 
-namespace Server.Logic.Logic.Login
+namespace Geek.Server.HotLogic.Logic.Login
 {
     public class LoginCompAgent : BaseCompAgent<LoginStateComp>
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         [BindEvent]
-        public async Task OnLogin(ReqLogin reqLogin)
+        public virtual async ValueTask OnLogin(ReqLogin reqLogin)
         {
             
+            if (string.IsNullOrEmpty(reqLogin.UserName))
+            {
+                reqLogin.ErrCode = (int)StateCode.AccountCannotBeNull;
+                return;
+            }
+
+            if (reqLogin.Platform != "android" && reqLogin.Platform != "ios" && reqLogin.Platform != "unity")
+            {
+                //验证平台合法性
+                reqLogin.ErrCode = (int)StateCode.UnknownPlatform;
+                return;
+            }
+
+            //查询角色账号，这里设定每个服务器只能有一个角色
+            var roleId = GetRoleIdOfPlayer(reqLogin.UserName, reqLogin.SdkType);
+            var isNewRole = roleId <= 0;
+            if (isNewRole)
+            {
+                //没有老角色，创建新号
+                roleId = IdGenerator.GetActorID(ActorType.Role);
+                CreateRoleToPlayer(reqLogin.UserName, reqLogin.SdkType, roleId);
+                // Log.Info("创建新号:" + roleId);
+            }
+
+            //添加到session
+            var session = new Session
+            {
+                Id = roleId,
+                Time = DateTime.Now,
+                // Channel = channel, 
+                Sign = reqLogin.Device
+            };
+            SessionManager.Add(session);
+
+            //登陆流程
+            var roleComp = await ActorMgr.GetCompAgent<RoleCompAgent>(roleId);
+            //从登录线程-->调用Role线程 所以需要入队
+            var resLogin = await roleComp.OnLogin(reqLogin, isNewRole);
+            // channel.Write(resLogin, reqLogin.SerialId, StateCode.Success);
+
+            //加入在线玩家
+            var serverComp = await ActorMgr.GetCompAgent<ServerCompAgent>();
+            await serverComp.AddOnlineRole(ActorId);
         }
 
         public async Task OnLogin(NetChannel channel, ReqLogin reqLogin)

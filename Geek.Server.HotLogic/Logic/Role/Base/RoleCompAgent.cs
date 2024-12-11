@@ -7,13 +7,13 @@ using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Net;
 using Geek.Server.Core.Timer;
-using Server.Logic.Common.Handler;
-using Server.Logic.Logic.Role.Bag;
-using Server.Logic.Logic.Server;
+using Geek.Server.HotLogic.Logic.Role.Bag;
+using Geek.Server.HotLogic.Logic.Server;
+using Geek.Server.HotLogic.Common.Handler;
 using Geek.Server.Storage.Role.Base;
 using Geek.Server.Storage.Role.Base.Comp;
 
-namespace Server.Logic.Logic.Role.Base
+namespace Geek.Server.HotLogic.Logic.Role.Base
 {
 
     public static class RoleCompAgentExt

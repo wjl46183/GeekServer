@@ -1,13 +1,13 @@
-﻿using Geek.Server.Main.Common.Event;
+using Geek.Server.Main.Common.Event;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Net.BaseHandler;
 using Geek.Server.Core.Utils;
-using Server.Logic.Common.Events;
-using Server.Logic.Logic.Role.Base;
+using Geek.Server.HotLogic.Common.Events;
+using Geek.Server.HotLogic.Logic.Role.Base;
 using Geek.Server.Storage.Role.Bag;
 using Geek.Server.Storage.Role.Bag.Comp;
 
-namespace Server.Logic.Logic.Role.Bag
+namespace Geek.Server.HotLogic.Logic.Role.Bag
 {
     public class BagCompAgent : BaseCompAgent<BagStateComp>
     {
@@ -41,7 +41,7 @@ namespace Server.Logic.Logic.Role.Bag
         }
 
         [BindEvent]
-        public async Task GetBagInfo(ReqBagInfo reqMsg)
+        public virtual async ValueTask GetBagInfo(ReqBagInfo reqMsg)
         {
             int a = Random.Shared.Next(100);
             if (a > 50)

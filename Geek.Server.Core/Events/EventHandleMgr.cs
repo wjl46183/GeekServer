@@ -15,7 +15,7 @@ public static class EventHandleMgr
     /// <summary>
     /// 消息发送给指定的Actor，由Actor处理消息
     /// </summary>
-    public delegate Task HandleEvent(long actorId, Message evt);
+    public delegate ValueTask HandleEvent(long actorId, Message evt);
 
     /// <summary>
     /// 绑定消息处理类型
@@ -27,7 +27,7 @@ public static class EventHandleMgr
     /// </summary>
     /// <param name="actor"></param>
     /// <param name="evt"></param>
-    public static async Task Handle(long actorId, Message evt)
+    public static async ValueTask Handle(long actorId, Message evt)
     {
         if (actorId == 0)
         {

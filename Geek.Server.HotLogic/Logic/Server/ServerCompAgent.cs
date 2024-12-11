@@ -2,11 +2,10 @@
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Timer.Handler;
 using Geek.Server.Core.Utils;
-using Server.Logic.Logic.Role.Base;
-using Geek.Server.Storage.Services;
+using Geek.Server.HotLogic.Logic.Role.Base;
 using Geek.Server.Storage.Services.Comp;
 
-namespace Server.Logic.Logic.Server
+namespace Geek.Server.HotLogic.Logic.Server
 {
     public class ServerCompAgent : BaseCompAgent<ServerStateComp>
     {

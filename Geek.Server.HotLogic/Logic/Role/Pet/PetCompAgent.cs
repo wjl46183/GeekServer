@@ -1,13 +1,13 @@
-﻿using Geek.Server.Main.Common.Event;
+using Geek.Server.Main.Common.Event;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
-using Server.Logic.Logic.Server;
+using Geek.Server.HotLogic.Logic.Server;
 using Geek.Server.Storage.Role.Pet;
 using Geek.Server.Storage.Role.Pet.Comp;
 
-namespace Server.Logic.Logic.Role.Pet
+namespace Geek.Server.HotLogic.Logic.Role.Pet
 {
     public class PetCompAgent : BaseCompAgent<PetStateComp>
     {
