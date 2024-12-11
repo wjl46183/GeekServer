@@ -31,6 +31,8 @@ namespace Geek.Server.CodeGenerator.Agent
         //public bool IsApi { get; set; }
 
         public bool IsApi { get; set; }
+        
+        public bool IsEvent { get; set; }
 
         public string Modify { get; set; }
 
@@ -41,6 +43,8 @@ namespace Geek.Server.CodeGenerator.Agent
         public bool IsVirtual { get; set; }
 
         public bool Isasync { get; set; }
+        
+        public bool Isreturn { get; set; }
 
         public List<string> Params { get; private set; } = new List<string>();
 

@@ -13,29 +13,43 @@ namespace {{space}}
 		{
 			{{~ if mth.discard ~}}{{~#************************************************~}}
 
-			{{~ if mth.threadsafe ~}}
+			    {{~ if mth.threadsafe ~}}
 			_ = base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}});
-			{{~ else ~}}
+			    {{~ else ~}}
 			long callChainId = Geek.Server.Core.Actors.Impl.WorkerActor.NextChainId();
 			_ = base.Actor.WorkerActor.Enqueue(()=>base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}}), callChainId, {{mth.discard}}, {{mth.timeout}});
-			{{~ end ~}}
+			    {{~ end ~}}
 			return {{mth.returntype}}.CompletedTask;
 
 			{{~ else ~}}{{~#************************************************~}}
 			(bool needEnqueue, long chainId)= base.Actor.WorkerActor.IsNeedEnqueue();
-			{{~ if mth.isasync ~}}
+			    {{~ if mth.isasync ~}}
 			if (!needEnqueue)
 			{
+			        {{~ if mth.isreturn ~}}
 				return await base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}});
+			        {{~ else ~}}
+				await base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}});
+			        {{~ end ~}}
 			}
-			return await base.Actor.WorkerActor.Enqueue(()=>base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}}), chainId, {{mth.discard}}, {{mth.timeout}});
-			{{~ else ~}}
+			else
+			{
+			        {{~ if mth.isreturn ~}}
+			    return await base.Actor.WorkerActor.Enqueue(()=>base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}}), chainId, {{mth.discard}}, {{mth.timeout}});
+			        {{~ else ~}}
+			    await base.Actor.WorkerActor.Enqueue(()=>base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}}), chainId, {{mth.discard}}, {{mth.timeout}});
+			        {{~ end ~}}
+			}
+			    {{~ else ~}}
 			if (!needEnqueue)
 			{
 				return base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}});
 			}
-			return base.Actor.WorkerActor.Enqueue(()=>base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}}), chainId, {{mth.discard}}, {{mth.timeout}});
-			{{~ end ~}}
+			else
+			{
+			    return base.Actor.WorkerActor.Enqueue(()=>base.{{mth.name}}{{mth.typeparams}}({{mth.paramstr}}), chainId, {{mth.discard}}, {{mth.timeout}});
+			}
+			    {{~ end ~}}
 			{{~ end ~}}{{~#************************************************~}}
 		}
 

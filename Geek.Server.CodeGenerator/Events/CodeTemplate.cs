@@ -1,147 +1,104 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Geek.Server.CodeGenerator.Utils;
 
 namespace Geek.Server.CodeGenerator.Events
 {
     public class CodeTemplate
     {
+        
+        /// <summary>
+        /// 生成MemoryPackSid
+        /// </summary>
+        /// <param name="namespaceName"></param>
+        /// <param name="className"></param>
+        /// <param name="sidValue"></param>
+        /// <returns></returns>
+        public static string getEventHandleClassStr(string namespaceName,Dictionary<string, Dictionary<int,List<EventInfo>>> eventMap)
+        {
+            var funcArr = new StringBuilder();
+            var funcKVArr = new StringBuilder();
+            foreach (var keyValuePair in eventMap)
+            {
+                funcArr.Append(getFuncContextStr(keyValuePair.Key, keyValuePair.Value));
+                funcKVArr.AppendLine($"\t\t\t{{{Tools.GetStringHash(keyValuePair.Key)},On{keyValuePair.Key}}},");
+            }
 
-	    /// <summary>
-	    /// 生成MemoryPackSid
-	    /// </summary>
-	    /// <param name="namespaceName"></param>
-	    /// <param name="className"></param>
-	    /// <param name="sidValue"></param>
-	    /// <returns></returns>
-	    public static string getMemoryPackSidStr(string namespaceName, string className, int sidValue,bool isOverride,bool isPoolInterface)
-	    {
-		    string poolType = isPoolInterface? "" : "BaseSafeObjectPool, ";
-		    string overrideTag = isOverride ? " override " : " ";
-		    var sourceBuilder = new StringBuilder($@"
-using MemoryPack;
-using  Geek.Server.Core.PolymorphicType;
-using Geek.Server.Core.Serialize;
-
+            var sourceBuilder = new StringBuilder($@"
+using Geek.Server.Core.Net;
+using Geek.Server.Core.Actors;
 namespace {namespaceName}
 {{
-    public partial class {className} : {poolType}ITypeId
+
+
+    public static class EventMapings
     {{
-        [MemoryPackIgnore] public const int TYPE_ID = {sidValue};
-        public{overrideTag}int TypeId => {sidValue};
+        /// <summary>
+        /// 事件绑定函数字典
+        /// </summary>
+        public static Dictionary<int,Geek.Server.Core.Events.EventHandleMgr.HandleEvent> typeIdHandleFuncs = new (){{
+{funcKVArr}        }};
 
-		private static SafeObjectPool<{className}> _Pool = new (_New);
-        
-		static {className} _New(){{
-			return new {className}();
-		}}
-
-        protected {className}()
-        {{
-            
-        }}
-
-        public static {className} Create()
-        {{
-            var obj = _Pool.GetObject();
-            obj.OnUse();
-            return obj;
-        }}
-
-        
-        public void Release()
-        {{
-            OnReturn();
-            _Pool.ReturnObject(this);
-        }}
+{funcArr}
     }}
 }}
 ");
-		    return sourceBuilder.ToString();
-	    }
-	    
-	    /// <summary>
-	    /// 生成MsgFactory
-	    /// </summary>
-	    /// <param name="kvStr"></param>
-	    /// <returns></returns>
-	    public static string getMsgFactoryStr(string namespaceStr,Dictionary<int, string> kvDict)
-	    {
-		    var kvStr = new StringBuilder();
-		    foreach (var pair in kvDict)
-		    {
-			    kvStr.AppendLine($"                {{{pair.Key}, typeof({pair.Value})}},");
-		    }
-		    
-		    var kcStr = new StringBuilder();
-		    foreach (var pair in kvDict)
-		    {
-			    kcStr.AppendLine($"                {{typeof({pair.Value}),{pair.Value}.Create }},");
-		    }
-		    
-		    var sourceBuilder = new StringBuilder($@"
+            return sourceBuilder.ToString();
+        }
 
-using System;
-namespace {namespaceStr};
+        /// <summary>
+        /// 生成MsgFactory
+        /// </summary>
+        /// <param name="kvStr"></param>
+        /// <returns></returns>
+        public static string getFuncContextStr(string eventClassName, Dictionary<int, List<EventInfo>> eventInfoDict)
+        {
+            List<int> keys = eventInfoDict.Keys.ToList();
+            keys.Sort();
 
-public static partial class MemoryPackTypeMapping
-{{
-    //类型映射容器
-    private static readonly Dictionary<int, Type> typeMapDict;
+            Dictionary<string,bool> agentDict = new Dictionary<string, bool>();
+            var kvStr = new StringBuilder();
+            foreach (var key in keys)
+            {
+                kvStr.AppendLine("\t\t\t//优先级：" + key);
+                var list = eventInfoDict[key];
+                foreach (var eventInfo in list)
+                {
+                    if (!agentDict.ContainsKey(eventInfo.agentFullClassName))
+                    {
+                        kvStr.AppendLine($"\t\t\tvar tmp{eventInfo.agentFullClassName.GetWithoutNamespace()} = await ActorMgr.GetCompAgent<{eventInfo.agentFullClassName}>(actorId);");
+                        agentDict[eventInfo.agentFullClassName] = true;
+                    }
+                    kvStr.AppendLine($"\t\t\tawait tmp{eventInfo.agentFullClassName.GetWithoutNamespace()}.{eventInfo.funcName}(tmp{eventInfo.parameterType});");
+                }
+                //单个Actor没有并发，不需要处理，后期有一个事件给多个人处理的时候需要
+            }
 
-	//类型映射构建器
-    private static readonly Dictionary<Type, Func<object>> typeCreateDict;
 
-    static MemoryPackTypeMapping()
-    {{
-        typeMapDict = new System.Collections.Generic.Dictionary<int, Type>({kvDict.Count})
+            var sourceBuilder = new StringBuilder($@"
+        public static async ValueTask On{eventClassName}(long actorId, Message evt)
         {{
+            var tmp{eventClassName} = evt as {eventClassName};
 {kvStr}
-        }};
-
-
-        typeCreateDict = new System.Collections.Generic.Dictionary<Type, Func<object>>({kvDict.Count})
-        {{
-{kcStr}
-        }};
-
-    }}
-
-	/// <summary>
-    /// 构建指定类型对象
-    /// </summary>
-    public static T Create<T>()
-    {{
-        if (typeCreateDict.TryGetValue(typeof(T), out Func<object> func))
-        {{
-            return (T)(func.Invoke());
         }}
-        else
-        {{
-            throw new Exception($""找不到指定Type对应的构造器 :{{typeof(T)}} 检查前后端协议是否同步"");
-        }}
-    }}
-    
-    /// <summary>
-    /// 获取指定消息ID对应的类型
-    /// </summary>
-    public static Type GetType(int typeId)
-    {{
-        if (typeMapDict.TryGetValue(typeId, out Type res))
-        {{
-            return res;
-        }}
-        else
-        {{
-            throw new Exception($""找不到指定ID对应的类型 :{{typeId}} 检查前后端协议是否同步"");
-        }}
-    }}
-}}
-
 ");
-		    return sourceBuilder.ToString();
-	    }
-	    
+            return sourceBuilder.ToString();
+        }
         
+        public static string GetStringAfterLastDot(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+            int lastDotIndex = input.LastIndexOf('.');
+            if (lastDotIndex != -1)
+            {
+                return input.Substring(lastDotIndex + 1);
+            }
+            return input;
+        }
     }
 }

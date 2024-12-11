@@ -33,8 +33,16 @@ namespace Geek.Server.CodeGenerator.Events
                     Logger.LogNormal(context,
                         $"过滤日志：{s}");
                 }
-            }
 
+                if (receiver.EventMap.Count > 0)
+                {
+                    string codeStr = CodeTemplate.getEventHandleClassStr(context.Compilation.AssemblyName + ".EventHandle",receiver.EventMap);
+                    context.AddSource($"EventMapings.g.cs",
+                        SourceText.From(codeStr, Encoding.UTF8));
+                }
+               
+            }
+            
             Logger.LogNormal(context,
                 $"程序集： {context.Compilation.AssemblyName} 自动生成 Events 代码 -> 完成");
         }

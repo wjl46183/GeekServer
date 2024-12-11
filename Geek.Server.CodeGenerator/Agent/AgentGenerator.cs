@@ -93,6 +93,8 @@ namespace Geek.Server.CodeGenerator.Agent
                                     mth.IsStatic = true;
                                 if (m.Text.Equals("async"))
                                     mth.Isasync = true;
+                                if (m.Text.IndexOf("Task<")  != -1)
+                                    mth.Isreturn = true;
                             }
 
                             if (mth.IsStatic)
@@ -100,15 +102,29 @@ namespace Geek.Server.CodeGenerator.Agent
 
                             mth.Returntype = method.ReturnType?.ToString();   //Task<T>
                             if (mth.Returntype == null)
+                            {
                                 mth.Returntype = "void";
+                                mth.Isreturn = false;
+                            }
+                            else
+                            {
+                                if (mth.Returntype.IndexOf("Task<") != -1)
+                                {
+                                    mth.Isreturn = true;
+                                }
+                            }
 
                             //遍历注解
                             foreach (var a in method.AttributeLists)
                             {
                                 var attStr = a.ToString().RemoveWhitespace();
-                                if (attStr.Contains("[Api]") || attStr.Contains("[Service]"))
+                                if (attStr.Contains("[Api]") || attStr.Contains("[Service]") || attStr.Contains("[BindEvent") || attStr.Contains("[BindEventAttribute"))
                                 {
                                     mth.IsApi = true;
+                                    if (attStr.Contains("[BindEvent") || attStr.Contains("[BindEventAttribute"))
+                                    {
+                                        mth.IsEvent = true;
+                                    }
                                 }
                                 else if (attStr.Contains("[Discard]"))
                                 {
@@ -135,10 +151,19 @@ namespace Geek.Server.CodeGenerator.Agent
                             }
 
                             if (mth.Threadsafe && mth.HasTimeout)
+                            {
                                 context.LogError($"{fullName}.{method.Identifier.Text}无法为标记【Threadsafe】的函数指定超时时间");
+                            }
 
                             if (!mth.IsApi && !mth.Discard && mth.HasTimeout)
+                            {
                                 context.LogError($"{fullName}.{method.Identifier.Text}【Timeout】注解只能配合【Api】或【Discard】使用");
+                            }
+
+                            if (mth.IsEvent && mth.Returntype != "ValueTask")
+                            {
+                                context.LogError($"{fullName}.{method.Identifier.Text}【BindEvent】注解只能配合 ValueTask 返回值使用");
+                            }
 
                             //跳过没有标记任何注解的函数
                             if (!mth.IsApi && !mth.Discard && !mth.Threadsafe)
@@ -152,14 +177,13 @@ namespace Geek.Server.CodeGenerator.Agent
                                 context.LogError($"{fullName}.{method.Identifier.Text}, 非【Threadsafe】的【Api】接口只能是异步函数");
 
                             if ((mth.IsApi || mth.Discard || mth.Threadsafe) && !mth.IsVirtual)
-                                context.LogError($"{fullName}.{method.Identifier.Text}标记了【AsyncApi】【Threadsafe】【Discard】注解的函数必须申明为virtual");
+                                context.LogError($"{fullName}.{method.Identifier.Text}标记了【BindEvent】【AsyncApi】【Threadsafe】【Discard】注解的函数必须申明为virtual");
 
                             if (mth.IsVirtual)
                             {
                                 info.Methods.Add(mth);
                                 mth.Name = method.Identifier.Text;
                                 mth.ParamDeclare = method.ParameterList.ToString();  //(int a, List<int> list)
-                                //mth.Returntype = method.ReturnType.ToString();   //Task<T>
                                 if (mth.Discard && !mth.Returntype.Equals("Task") && !mth.Returntype.Equals("ValueTask"))
                                     context.LogError($"{fullName}.{method.Identifier.Text}只有返回值为Task类型才能添加【Discard】注解");
                                 mth.Constraint = method.ConstraintClauses.ToString(); //where T : class, new() where K : BagState

@@ -14,7 +14,7 @@ namespace Geek.Server.CodeGenerator.MemoryPack
 	    /// <param name="className"></param>
 	    /// <param name="sidValue"></param>
 	    /// <returns></returns>
-	    public static string getMemoryPackSidStr(string namespaceName, string className, int sidValue,bool isOverride,bool isPoolInterface)
+	    public static string getMemoryPackSidStr(string namespaceName, string className, int sidValue,bool isOverride,bool isPoolInterface,bool newTYPEID)
 	    {
 		    string poolType = isPoolInterface? "" : "BaseSafeObjectPool, ";
 		    string overrideTag = isOverride ? " override " : " ";
@@ -27,7 +27,7 @@ namespace {namespaceName}
 {{
     public partial class {className} : {poolType}ITypeId
     {{
-        [MemoryPackIgnore] public const int TYPE_ID = {sidValue};
+        [MemoryPackIgnore] public{(newTYPEID ? " new ": " ")}const int TYPE_ID = {sidValue};
         public{overrideTag}int TypeId => {sidValue};
 
 		private static SafeObjectPool<{className}> _Pool = new (_New);
@@ -41,7 +41,7 @@ namespace {namespaceName}
             
         }}
 
-        public static {className} Create()
+        public static{(newTYPEID ? " new " :" ")}{className} Create()
         {{
             var obj = _Pool.GetObject();
             obj.OnUse();
@@ -49,7 +49,7 @@ namespace {namespaceName}
         }}
 
         
-        public void Release()
+        public override void Release()
         {{
             OnReturn();
             _Pool.ReturnObject(this);
@@ -82,6 +82,7 @@ namespace {namespaceName}
 		    var sourceBuilder = new StringBuilder($@"
 
 using System;
+using Geek.Server.Core.Net;
 namespace {namespaceStr};
 
 public static partial class MemoryPackTypeMapping
@@ -119,6 +120,21 @@ public static partial class MemoryPackTypeMapping
         else
         {{
             throw new Exception($""找不到指定Type对应的构造器 :{{typeof(T)}} 检查前后端协议是否同步"");
+        }}
+    }}
+
+	/// <summary>
+    /// 构建指定类型对象
+    /// </summary>
+    public static Message Create(Type type)
+    {{
+        if (typeCreateDict.TryGetValue(type, out Func<object> func))
+        {{
+            return (Message)(func.Invoke());
+        }}
+        else
+        {{
+            throw new Exception($""找不到指定Type对应的构造器 :{{type}} 检查前后端协议是否同步"");
         }}
     }}
     

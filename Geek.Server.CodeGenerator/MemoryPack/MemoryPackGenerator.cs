@@ -35,10 +35,11 @@ namespace Geek.Server.CodeGenerator.MemoryPack
                     {
                         var namespaceName = GetNamespace(typeDeclaration);
                         var className = typeDeclaration.Identifier.Text;
-                        var sidValue = className.GetHashCode();
+                        var sidValue =  Tools.GetStringHash(className);
 
                         bool isOverride = false;
                         bool isPoolinterface = false;
+                        bool hasTypeIdInBase = false;
                         var model = context.Compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
                         var classSymbol = model.GetDeclaredSymbol(typeDeclaration);
                         if (classSymbol != null)
@@ -48,10 +49,11 @@ namespace Geek.Server.CodeGenerator.MemoryPack
                                 interfaceSymbol.Name.ToString() == "ITypeId");
                             isPoolinterface = interfaces.Any(interfaceSymbol =>
                                 interfaceSymbol.Name.ToString() == "ISafeObjectPool");
+                            hasTypeIdInBase = classSymbol.BaseType?.Name != "Message" && classSymbol.BaseType.GetAttributes().Any(attr => attr.AttributeClass?.Name == "MemoryPackableAttribute");
                         }
 
                         var sourceBuilder = CodeTemplate.getMemoryPackSidStr(namespaceName, className, sidValue,
-                            isOverride, isPoolinterface);
+                            isOverride, isPoolinterface,hasTypeIdInBase);
                         if (typeDict.ContainsKey(sidValue))
                         {
                             Logger.LogError(context,

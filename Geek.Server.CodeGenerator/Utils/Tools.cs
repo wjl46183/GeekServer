@@ -19,6 +19,30 @@ namespace Geek.Server.CodeGenerator.Utils
         {
             return string.Join("", str.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
         }
+        
+        public static string GetWithoutNamespace(this string str)
+        {
+            string[] strArr = str.Split('.');
+            return strArr[strArr.Length - 1];
+        }
+        
+        public static int GetStringHash(string input)
+        {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            const int prime = 31; // 常用的质数用于哈希
+            int hash = 0;
+
+            foreach (char c in input)
+            {
+                hash = (hash * prime) + c;
+            }
+
+            return hash;
+        }
 
     }
 }
