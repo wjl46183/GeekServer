@@ -13,4 +13,8 @@ public class BaseSafeObjectPool : ISafeObjectPool
     public virtual void OnReturn()
     {
     }
+
+    public virtual void Release()
+    {
+    }
 }

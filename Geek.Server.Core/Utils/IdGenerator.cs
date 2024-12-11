@@ -1,15 +1,14 @@
-﻿
-using Geek.Server.Core.Actors;
+﻿using Geek.Server.Core.Actors;
 
 namespace Geek.Server.Core.Utils
 {
-
     /// <summary>
     /// 需要小于1000，因为1000以上作为服务器id了
     /// </summary>
     public enum IDModule
     {
         MIN = 0,
+
         //单服/玩家不同即可
         Pet = 101,
         Equip = 102,
@@ -39,7 +38,7 @@ namespace Geek.Server.Core.Utils
         private static long incrNum = 0L;
 
         //此时间决定可用id年限(最晚有效年限=34年+此时间)(可调整,早于开服时间就行)
-        private readonly static DateTime utcTimeStart = new(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private readonly static DateTime utcTimeStart = new(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         private static readonly object lockObj = new();
 
@@ -124,6 +123,7 @@ namespace Geek.Server.Core.Utils
             {
                 throw new ArgumentException($"input actor type error: {type}");
             }
+
             var id = (long)Settings.ServerId << SERVERID_OR_MODULEID_MASK;
             id |= (long)type << ACTORTYPE_MASK;
             return id;
@@ -134,10 +134,11 @@ namespace Geek.Server.Core.Utils
             return (long)(serverId * 1000 + type);
         }
 
-        const int SERVERID_OR_MODULEID_MASK = 49;   //49+14=63
-        const int ACTORTYPE_MASK = 42;  //42+7 = 49
-        const int TIMESTAMP_MASK = 12;   //12+30 =42
-        const int MODULEID_TIMESTAMP_MASK = 19;       //19+30 =42
+        const int SERVERID_OR_MODULEID_MASK = 49; //49+14=63
+        const int ACTORTYPE_MASK = 42; //42+7 = 49
+        const int TIMESTAMP_MASK = 12; //12+30 =42
+        const int MODULEID_TIMESTAMP_MASK = 19; //19+30 =42
+
         private static long GetMultiActorID(ActorType type, int serverId)
         {
             long second = (long)(DateTime.UtcNow - utcTimeStart).TotalSeconds;
@@ -186,12 +187,11 @@ namespace Geek.Server.Core.Utils
                     ++incrNum;
                 }
             }
+
             var id = (long)module << SERVERID_OR_MODULEID_MASK; // 模块id 14位 支持 0~9999
             id |= genSecond << MODULEID_TIMESTAMP_MASK; // 时间戳 30位
             id |= incrNum; // 自增 19位
             return id;
         }
     }
-
 }
-

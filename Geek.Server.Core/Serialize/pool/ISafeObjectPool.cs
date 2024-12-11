@@ -8,4 +8,6 @@ public interface ISafeObjectPool
     void OnUse();
     
     void OnReturn();
+    
+    void Release();
 }
