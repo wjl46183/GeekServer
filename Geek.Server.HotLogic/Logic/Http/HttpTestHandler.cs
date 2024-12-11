@@ -1,6 +1,6 @@
 using Geek.Server.Core.Net.Http;
 
-namespace Server.Logic.Logic.Http
+namespace Geek.Server.HotLogic.Logic.Http
 {
     public class HttpTestRes : HttpResult
     {

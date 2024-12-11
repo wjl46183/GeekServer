@@ -1,7 +1,7 @@
 using Geek.Server.Main.Common.Session;
 using Geek.Server.Core.Net.Http;
 
-namespace Server.Logic.Logic.Http
+namespace Geek.Server.HotLogic.Logic.Http
 {
     [HttpMsgMapping("online_num_query")]
     public class HttpGetOnlinePlayerHandler : BaseHttpHandler

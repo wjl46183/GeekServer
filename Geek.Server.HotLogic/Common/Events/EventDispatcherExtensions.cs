@@ -4,9 +4,9 @@ using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
-using Server.Logic.Logic.Server;
+using Geek.Server.HotLogic.Logic.Server;
 
-namespace Server.Logic.Common.Events
+namespace Geek.Server.HotLogic.Common.Events
 {
     public static class EventDispatcherExtensions
     {

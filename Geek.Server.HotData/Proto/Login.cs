@@ -122,14 +122,6 @@ namespace Geek.Server.Proto
     [MemoryPackable]
     public partial class ResErrorCode : Message
     {
-        /// <summary>
-        /// 0:表示无错误
-        /// </summary>
-        public long ErrCode { get; set; }
-        /// <summary>
-        /// 错误描述（不为0时有效）
-        /// </summary>
-        public string Desc { get; set; }
     }
 
     [MemoryPackable]

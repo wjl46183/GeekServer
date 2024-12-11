@@ -11,33 +11,19 @@ using Geek.Server.Core.Net.Tcp;
 using Geek.Server.Core.Net.Websocket;
 using Geek.Server.Core.Timer;
 using Geek.Server.Core.Utils;
+using Geek.Server.HotData;
+using Geek.Server.HotLogic.EventHandle;
 using Microsoft.AspNetCore.Connections;
-using Server.Logic.Logic.Login;
-using Server.Logic.Logic.Role.Base;
+using Geek.Server.HotLogic.Logic.Login;
+using Geek.Server.HotLogic.Logic.Role.Base;
 
-namespace Server.Logic.Common
+namespace Geek.Server.HotLogic.Common
 {
     internal class HotfixBridge : IHotfixBridge
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public ServerType BridgeType => ServerType.Game;
-
-        public static async Task OnHandleLoginEvent(long actorId, Message evt)
-        {
-            var login = evt as ReqLogin;
-            
-            //单个（优先级）
-            await (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login);
-
-            //多个（相同优先级）
-            await Task.WhenAll(new []{
-                (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login),
-                (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login),
-                (await ActorMgr.GetCompAgent<LoginCompAgent>(actorId)).OnLogin(login),
-            });
-            
-        }
 
         public async Task<bool> OnLoadSuccess(bool reload)
         {
@@ -46,14 +32,13 @@ namespace Server.Logic.Common
                 ActorMgr.ClearAgent();
                 return true;
             }
-            HotfixMgr.SetMsgGetter(Geek.Server.HotData.MemoryPackTypeMapping.GetType);
             
-            Dictionary<int,EventHandleMgr.HandleEvent> dict = new();
-            dict[1] = OnHandleLoginEvent;
-            EventHandleMgr.SetHandleMap(dict);
+            // 绑定消息类型
+            HotfixMgr.SetMsgGetter(MemoryPackTypeMapping.GetType);
+            HotfixMgr.SetMsgCreater((type)=> MemoryPackTypeMapping.Create(type));
+            //绑定事件处理器
+            EventHandleMgr.SetHandleMap(EventMapings.typeIdHandleFuncs);
             
-            await EventHandleMgr.Handle(1111, ReqLogin.Create());
-
             await TcpServer.Start(Settings.TcpPort, builder => builder.UseConnectionHandler<AppTcpConnectionHandler>());
             await WebSocketServer.Start(Settings.WebSocketUrl, new AppWebSocketConnectionHandler());
             await HttpServer.Start(Settings.HttpPort);

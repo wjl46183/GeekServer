@@ -2,7 +2,7 @@
 using Geek.Server.Main.Common;
 using Geek.Server.Core.Net;
 
-namespace Server.Logic.Common.Handler;
+namespace Geek.Server.HotLogic.Common.Handler;
 
 public static class NetChannelExtensions
 {
