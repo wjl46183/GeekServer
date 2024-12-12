@@ -3,9 +3,9 @@ using Geek.Server.Core.Utils;
 using NLog;
 using System.Diagnostics;
 using System.Text;
-using Geek.Server.Main.Common;
+using Geek.Server.LogicLaunch.Common;
 
-namespace Geek.Server.Main
+namespace Geek.Server.LogicLaunch
 {
     class Program
     {

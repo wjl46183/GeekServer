@@ -1,4 +1,4 @@
-namespace Geek.Server.Main.Common
+namespace Geek.Server.LogicLaunch.Common
 {
 
     /// <summary>

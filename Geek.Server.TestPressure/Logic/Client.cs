@@ -87,9 +87,9 @@ namespace Geek.Server.TestPressure.Logic
             //登陆
             var req = EventLogin.Create();
             req.SdkType = 0;
-            req.SdkToken = "555";
             req.Sign = new Random().NextInt64().ToString();
             req.Platform = "android";
+            req.OpenId = Guid.NewGuid().ToString();
             return SendMsgAndWaitBack(req);
         }
 

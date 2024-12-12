@@ -1,6 +1,6 @@
 ﻿using Geek.Server.Core.Utils;
 
-namespace Geek.Server.Main.Common
+namespace Geek.Server.LogicLaunch.Common
 {
     public class AppSetting : BaseSetting
     {

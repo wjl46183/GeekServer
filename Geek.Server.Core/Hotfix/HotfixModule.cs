@@ -15,7 +15,13 @@ namespace Geek.Server.Core.Hotfix
     internal class HotfixModule
     {
         static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        public const string KEY = "TYPE_ID";
+        
+        readonly ConcurrentDictionary<string, object> typeCacheMap = new();
+
         private DllLoader DllLoader = null;
+
         readonly string DllPath;
 
         internal IHotfixBridge HotfixBridge { get; private set; }
@@ -39,7 +45,7 @@ namespace Geek.Server.Core.Hotfix
         /// <summary>
         /// msgId -> handler
         /// </summary>
-        readonly Dictionary<int, Type> tcpHandlerMap = new();  
+        readonly Dictionary<int, Type> tcpHandlerMap = new();
 
         readonly bool useAgentWrapper = true;
 
@@ -81,6 +87,7 @@ namespace Geek.Server.Core.Hotfix
                 if (!reload)
                     throw;
             }
+
             return success;
         }
 
@@ -101,6 +108,7 @@ namespace Geek.Server.Core.Hotfix
                             GC.Collect();
                             GC.WaitForPendingFinalizers();
                         }
+
                         Log.Warn($"hotfix dll unloaded {(weak.IsAlive ? "failed" : "success")}");
                     });
                 }
@@ -161,10 +169,10 @@ namespace Geek.Server.Core.Hotfix
             {
                 throw new Exception($"http handler cmd重复注册，cmd:{attr.Cmd}");
             }
+
             return true;
         }
 
-        public const string KEY = "TYPE_ID";
         private bool AddTcpHandler(Type type)
         {
             var attribute = (MsgMapping)type.GetCustomAttribute(typeof(MsgMapping), true);
@@ -180,6 +188,7 @@ namespace Geek.Server.Core.Hotfix
             {
                 Log.Error("重复注册消息tcp handler:[{}] msg:[{}]", msgId, type);
             }
+
             return true;
         }
 
@@ -193,6 +202,7 @@ namespace Geek.Server.Core.Hotfix
                 agentAgentWrapperMap[type.BaseType] = type;
                 return true;
             }
+
             var compType = type.BaseType.GetGenericArguments()[0];
             if (compAgentMap.ContainsKey(compType))
             {
@@ -210,6 +220,7 @@ namespace Geek.Server.Core.Hotfix
             {
                 return handler;
             }
+
             return null;
             // throw new HttpHandlerNotFoundException($"未注册的http命令:{cmd}");
         }
@@ -222,20 +233,33 @@ namespace Geek.Server.Core.Hotfix
             return agent;
         }
 
-        readonly ConcurrentDictionary<string, object> typeCacheMap = new();
-
-        /// <summary>获取实例(主要用于获取Event,Timer, Schedule,的Handler实例)</summary>
+        /// <summary>
+        /// 获取实例(主要用于获取Event,Timer, Schedule,的Handler实例)
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         internal T GetInstance<T>(string typeName)
         {
             return (T)typeCacheMap.GetOrAdd(typeName, k => HotfixAssembly.CreateInstance(k));
         }
 
+        /// <summary>
+        /// 用组件类型获取对应的Agent类型
+        /// </summary>
+        /// <param name="compType"></param>
+        /// <returns></returns>
         internal Type GetAgentType(Type compType)
         {
             compAgentMap.TryGetValue(compType, out var agentType);
             return agentType;
         }
 
+        /// <summary>
+        /// 用Agent类型获取对应的组件类型
+        /// </summary>
+        /// <param name="agentType"></param>
+        /// <returns></returns>
         internal Type GetCompType(Type agentType)
         {
             agentCompMap.TryGetValue(agentType, out var compType);

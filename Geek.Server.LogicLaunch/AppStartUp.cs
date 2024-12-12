@@ -8,7 +8,7 @@ using Geek.Server.Storage;
 using NLog;
 using NLog.Config;
 
-namespace Geek.Server.Main.Common
+namespace Geek.Server.LogicLaunch.Common
 {
     internal class AppStartUp
     {

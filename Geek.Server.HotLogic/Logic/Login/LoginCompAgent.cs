@@ -1,4 +1,4 @@
-﻿using Geek.Server.Main.Common;
+﻿using Geek.Server.LogicLaunch.Common;
 using Geek.Server.Core.Net.Session;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Hotfix.Agent;
@@ -16,18 +16,16 @@ namespace Geek.Server.HotLogic.Logic.Login
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// TCP链接成功后，登陆
+        /// </summary>
+        /// <param name="eventLogin"></param>
         [BindEvent]
         public virtual async ValueTask OnLogin(EventLogin eventLogin)
         {
             if (string.IsNullOrEmpty(eventLogin.OpenId))
             {
                 eventLogin.ErrCode = (int)StateCode.AccountCannotBeNull;
-                return;
-            }
-            
-            if (string.IsNullOrEmpty(eventLogin.logicServerId))
-            {
-                eventLogin.ErrCode = (int)StateCode.ServerIdError;
                 return;
             }
 

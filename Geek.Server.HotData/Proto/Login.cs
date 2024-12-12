@@ -70,7 +70,14 @@ namespace Geek.Server.HotData.Proto
     [MemoryPackable]
     public partial class EventLogin : EventLinkCheck
     {
+        /// <summary>
+        /// 平台
+        /// </summary>
         public string Platform { get; set; }
+        
+        /// <summary>
+        /// sdk类型
+        /// </summary>
         public int SdkType { get; set; }
         public string SdkToken { get; set; }
         
