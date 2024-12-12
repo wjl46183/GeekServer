@@ -3,7 +3,7 @@ using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
 using MemoryPack;
 
-namespace Geek.Server.Storage.Role.Base;
+namespace Geek.Server.Storage;
 
 [MemoryPackable]
 [SaveState(ActorType.Role)]

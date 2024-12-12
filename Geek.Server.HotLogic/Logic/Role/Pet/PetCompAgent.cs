@@ -1,11 +1,9 @@
-using Geek.Server.Main.Common.Event;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Utils;
 using Geek.Server.HotLogic.Logic.Server;
-using Geek.Server.Storage.Role.Pet;
-using Geek.Server.Storage.Role.Pet.Comp;
+using Geek.Server.Storage.Comp;
 
 namespace Geek.Server.HotLogic.Logic.Role.Pet
 {
@@ -13,22 +11,6 @@ namespace Geek.Server.HotLogic.Logic.Role.Pet
     {
 
         readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
-
-        [Event(EventID.GotNewPet)]
-        class EL : EventListener<PetCompAgent>
-        {
-            protected override async Task HandleEvent(PetCompAgent agent, Event evt)
-            {
-                switch ((EventID)evt.EventId)
-                {
-                    case EventID.GotNewPet:
-                        await agent.OnGotNewPet((OneParam<int>)evt.Data);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
 
         private async Task OnGotNewPet(OneParam<int> param)
         {

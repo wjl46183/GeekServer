@@ -111,12 +111,12 @@ namespace Geek.Server.Core.Actors
                     actor.Tell(async () =>
                     {
                         if (actor.AutoRecycle
-                        && (DateTime.Now - activeTimeDic[actor.Id]).TotalMinutes > 15)
+                        && (DateTime.Now - activeTimeDic[actor.Id]).TotalMinutes > 10)
                         {
                             await GetLifeActor(actor.Id).SendAsync(async () =>
                             {
                                 if (activeTimeDic.TryGetValue(actor.Id, out var activeTime)
-                                && (DateTime.Now - activeTimeDic[actor.Id]).TotalMinutes > 15)
+                                && (DateTime.Now - activeTime).TotalMinutes > 10)
                                 {
                                     // 防止定时回存失败时State被直接移除
                                     if (actor.ReadyToDeactive)

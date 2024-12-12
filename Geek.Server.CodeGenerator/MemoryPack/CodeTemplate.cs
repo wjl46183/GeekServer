@@ -48,9 +48,9 @@ namespace {namespaceName}
             return obj;
         }}
 
-        
         public override void Release()
         {{
+			base.Release();
             OnReturn();
             _Pool.ReturnObject(this);
         }}
@@ -126,16 +126,24 @@ public static partial class MemoryPackTypeMapping
 	/// <summary>
     /// 构建指定类型对象
     /// </summary>
-    public static Message Create(Type type)
+    public static BaseEvent Create(Type type)
     {{
         if (typeCreateDict.TryGetValue(type, out Func<object> func))
         {{
-            return (Message)(func.Invoke());
+            return (BaseEvent)(func.Invoke());
         }}
         else
         {{
             throw new Exception($""找不到指定Type对应的构造器 :{{type}} 检查前后端协议是否同步"");
         }}
+    }}
+
+	/// <summary>
+    /// 获取映射字典
+    /// </summary>
+    public static Dictionary<int, Type> GetIdTypeDict()
+    {{
+        return typeMapDict;
     }}
     
     /// <summary>

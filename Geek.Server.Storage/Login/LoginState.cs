@@ -4,7 +4,7 @@ using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
 using MemoryPack;
 
-namespace Geek.Server.Storage.Login;
+namespace Geek.Server.Storage;
 
 [MemoryPackable]
 public partial class PlayerInfo
@@ -19,7 +19,7 @@ public partial class PlayerInfo
 }
 
 [MemoryPackable]
-[SaveState(ActorType.Server)]
+[SaveState(ActorType.PhysicServer)]
 public partial class LoginState : BaseState
 {
     public ConcurrentDictionary<string, PlayerInfo> PlayerMap = new();

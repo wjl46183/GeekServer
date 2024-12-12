@@ -11,10 +11,10 @@ namespace Geek.Server.TestPressure.Logic
     {
         static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
 
-        protected Action<Message> onMessage;
+        protected Action<BaseEvent> onMessage;
         protected Pipe recvPipe;
         protected TcpClient socket;
-        public ClientTcpChannel(TcpClient socket, Action<Message> onMessage = null)
+        public ClientTcpChannel(TcpClient socket, Action<BaseEvent> onMessage = null)
         {
             this.socket = socket;
             this.onMessage = onMessage;
@@ -99,7 +99,7 @@ namespace Geek.Server.TestPressure.Logic
             }
             else
             {
-                var message = MemoryPackSerializer.Deserialize(msgType,payload.Slice(4)) as Message;
+                var message = MemoryPackSerializer.Deserialize(msgType,payload.Slice(4)) as BaseEvent;
 #if UNITY_EDITOR
                 Debug.Log("收到消息:" + MessagePackSerializer.SerializeToJson(message));
 #endif
@@ -116,11 +116,12 @@ namespace Geek.Server.TestPressure.Logic
 
         private const int Magic = 0x1234;
         int count = 0;
-        public override void Write(Message msg)
+        public override void Write(BaseEvent msg)
         {
             if (IsClose())
                 return;
             byte[] bytes = MemoryPackSerializer.Serialize(msg.GetType(),msg);
+            msg.Release();
             int len = 4 + 8 + 4 + 4 + bytes.Length;
             Span<byte> target = stackalloc byte[len];
 

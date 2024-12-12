@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Net;
+using Geek.Server.Core.Utils;
 
 namespace Geek.Server.Core.Events;
 
@@ -15,7 +16,7 @@ public static class EventHandleMgr
     /// <summary>
     /// 消息发送给指定的Actor，由Actor处理消息
     /// </summary>
-    public delegate ValueTask HandleEvent(long actorId, Message evt);
+    public delegate ValueTask HandleEvent(long actorId, BaseEvent evt);
 
     /// <summary>
     /// 绑定消息处理类型
@@ -27,7 +28,7 @@ public static class EventHandleMgr
     /// </summary>
     /// <param name="actor"></param>
     /// <param name="evt"></param>
-    public static async ValueTask Handle(long actorId, Message evt)
+    public static async ValueTask Handle(long actorId, BaseEvent evt)
     {
         if (actorId == 0)
         {
@@ -35,12 +36,12 @@ public static class EventHandleMgr
             return;
         }
 
-        if (!HandleEventMap.TryGetValue(evt.TypeId,out var handleEvent))
+        if (!HandleEventMap.TryGetValue(evt.TypeId, out var handleEvent))
         {
             LOGGER.Error($"消息处理失败，消息类型未绑定：{evt}");
             return;
         }
-        
+
         await handleEvent.Invoke(actorId, evt);
     }
 

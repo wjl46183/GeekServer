@@ -14,7 +14,6 @@ namespace Geek.Server.Core.Timer
         {
             working = true;
             LoopTask = Task.Run(Loop);
-            Log.Info($"初始化全局定时完成");
         }
 
         private static async Task Loop()

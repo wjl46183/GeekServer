@@ -1,16 +1,13 @@
-﻿
+﻿using Geek.Server.Core.Net;
 using MemoryPack;
-using System.Collections.Generic;
-using Geek.Server.Core.Net;
 
-namespace Geek.Server.Proto
+namespace Geek.Server.HotData.Proto
 {
-
     /// <summary>
     /// 请求背包数据
     /// </summary>
     [MemoryPackable]
-    public partial class ReqBagInfo : Message
+    public partial class ReqBagInfo : BaseEvent
     {
     }
 
@@ -18,7 +15,7 @@ namespace Geek.Server.Proto
     /// 返回背包数据
     /// </summary>
     [MemoryPackable]
-    public partial class ResBagInfo : Message
+    public partial class ResBagInfo : BaseEvent
     {
         public Dictionary<int, long> ItemDic { get; set; } = new Dictionary<int, long>();
     }
@@ -27,7 +24,7 @@ namespace Geek.Server.Proto
     /// 请求背包数据
     /// </summary>
     [MemoryPackable]
-    public partial class ReqComposePet : Message
+    public partial class ReqComposePet : BaseEvent
     {
         /// <summary>
         /// 碎片id
@@ -39,7 +36,7 @@ namespace Geek.Server.Proto
     /// 返回背包数据
     /// </summary>
     [MemoryPackable]
-    public partial class ResComposePet : Message
+    public partial class ResComposePet : BaseEvent
     {
         /// <summary>
         /// 合成宠物的Id
@@ -52,7 +49,7 @@ namespace Geek.Server.Proto
     /// 使用道具
     /// </summary>
     [MemoryPackable]
-    public partial class ReqUseItem : Message
+    public partial class ReqUseItem : BaseEvent
     {
         /// <summary>
         /// 道具id
@@ -64,12 +61,13 @@ namespace Geek.Server.Proto
     /// 出售道具
     /// </summary>
     [MemoryPackable]
-    public partial class ReqSellItem : Message
+    public partial class ReqSellItem : BaseEvent
     {
         /// <summary>
         /// 道具id
         /// </summary>
         public int ItemId { get; set; }
+
         /// <summary>
         /// 道具id
         /// </summary>
@@ -77,12 +75,11 @@ namespace Geek.Server.Proto
     }
 
     [MemoryPackable]
-    public partial class ResItemChange : Message
+    public partial class ResItemChange : BaseEvent
     {
         /// <summary>
         /// 变化的道具
         /// </summary>
         public Dictionary<int, long> ItemDic { get; set; }
     }
-
 }

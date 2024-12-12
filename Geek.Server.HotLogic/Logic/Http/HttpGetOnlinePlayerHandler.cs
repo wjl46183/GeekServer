@@ -1,4 +1,4 @@
-using Geek.Server.Main.Common.Session;
+using Geek.Server.Core.Net.Session;
 using Geek.Server.Core.Net.Http;
 
 namespace Geek.Server.HotLogic.Logic.Http

@@ -37,7 +37,7 @@ using Geek.Server.Core.Comps;
 namespace {namespaceName}.Comp;
 
 [Comp({actorType})]
-public sealed class {stateName}Comp : StateComp<{stateName}>
+public sealed partial class {stateName}Comp : StateComp<{stateName}>
 {{
 {dynamicTypeAttributes}
     public override Task Deactive()

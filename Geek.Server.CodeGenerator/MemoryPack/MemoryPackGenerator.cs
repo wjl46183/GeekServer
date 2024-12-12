@@ -49,7 +49,7 @@ namespace Geek.Server.CodeGenerator.MemoryPack
                                 interfaceSymbol.Name.ToString() == "ITypeId");
                             isPoolinterface = interfaces.Any(interfaceSymbol =>
                                 interfaceSymbol.Name.ToString() == "ISafeObjectPool");
-                            hasTypeIdInBase = classSymbol.BaseType?.Name != "Message" && classSymbol.BaseType.GetAttributes().Any(attr => attr.AttributeClass?.Name == "MemoryPackableAttribute");
+                            hasTypeIdInBase = classSymbol.BaseType?.Name != "BaseEvent" && classSymbol.BaseType.GetAttributes().Any(attr => attr.AttributeClass?.Name == "MemoryPackableAttribute");
                         }
 
                         var sourceBuilder = CodeTemplate.getMemoryPackSidStr(namespaceName, className, sidValue,

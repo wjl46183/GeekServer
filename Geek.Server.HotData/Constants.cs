@@ -13,6 +13,10 @@ namespace Geek.Server.Main.Common
 
         //Login
         AccountCannotBeNull,
+        /// <summary>
+        /// 服务器ID错误
+        /// </summary>
+        ServerIdError,
         UnknownPlatform,
 
         Notice = 100000, //正常通知

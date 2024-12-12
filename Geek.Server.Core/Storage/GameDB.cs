@@ -1,11 +1,16 @@
-﻿namespace Geek.Server.Core.Storage
+﻿using Geek.Server.Core.Utils;
+
+namespace Geek.Server.Core.Storage
 {
     public interface IGameDB
     {
         public void Open(string url, string dbName);
         public void Close();
         public Task Flush();
-        public Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : BaseState, new();
+
+        public Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null)
+            where TState : BaseState, new();
+
         public Task SaveState<TState>(TState state) where TState : BaseState;
     }
 
@@ -16,9 +21,9 @@
         private static IGameDB dbImpler;
 
 
-        public static void Init()
+        public static void Init(IGameDB impler)
         {
-            dbImpler = new MongoDBConnection();
+            dbImpler = impler;
         }
 
         public static async Task Flush()
@@ -31,9 +36,9 @@
             return (T)dbImpler;
         }
 
-        public static void Open()
+        public static void Open(string url, string dbName)
         {
-            dbImpler.Open(Settings.MongoUrl, Settings.MongoDBName);
+            dbImpler.Open(url, dbName);
         }
 
         public static void Close()
@@ -41,7 +46,8 @@
             dbImpler.Close();
         }
 
-        public static Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null) where TState : BaseState, new()
+        public static Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null)
+            where TState : BaseState, new()
         {
             return dbImpler.LoadState(id, defaultGetter);
         }

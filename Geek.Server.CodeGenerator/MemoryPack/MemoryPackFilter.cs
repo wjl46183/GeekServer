@@ -18,6 +18,10 @@ namespace Geek.Server.CodeGenerator.MemoryPack
         {
             if (syntaxNode is ClassDeclarationSyntax typeDeclaration)
             {
+                if (typeDeclaration.Identifier.Text == "BaseEvent" || typeDeclaration.Identifier.Text == "BaseState")
+                {
+                    return;
+                }
                 // 排除继承自 BaseState 的类型
                 var inheritsFromBaseState = typeDeclaration.BaseList?.Types
                     .Any(baseType => baseType.Type.ToString() == "BaseState") ?? false;

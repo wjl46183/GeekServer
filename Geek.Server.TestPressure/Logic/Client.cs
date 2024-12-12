@@ -1,10 +1,9 @@
 using Geek.Server.Core.Net;
-using Geek.Server.Core.Net.Tcp;
 using Geek.Server.Core.Net.Websocket;
-using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using System.Net.Sockets;
 using System.Net.WebSockets;
+using Geek.Server.HotData.Proto;
 
 namespace Geek.Server.TestPressure.Logic
 {
@@ -72,24 +71,24 @@ namespace Geek.Server.TestPressure.Logic
 
 
             await DoReqLogin();
-            await Task.Delay(5000);
-
-            for (int i = 0; i < 100; i++)
-            {
-                await DoReqBagInfo();
-                await Task.Delay(1000);
-            }
-            await DoReqComposePet();
+            Log.Info("开始测试");
+            // await Task.Delay(5000);
+            //
+            // for (int i = 0; i < 100; i++)
+            // {
+            //     await DoReqBagInfo();
+            //     await Task.Delay(1000);
+            // }
+            // await DoReqComposePet();
         }
 
         private Task<bool> DoReqLogin()
         {
             //登陆
-            var req = ReqLogin.Create();
+            var req = EventLogin.Create();
             req.SdkType = 0;
             req.SdkToken = "555";
-            req.UserName = "name" + id;
-            req.Device = new Random().NextInt64().ToString();
+            req.Sign = new Random().NextInt64().ToString();
             req.Platform = "android";
             return SendMsgAndWaitBack(req);
         }
@@ -106,7 +105,7 @@ namespace Geek.Server.TestPressure.Logic
             return SendMsgAndWaitBack(req);
         }
          
-        async Task<bool> SendMsgAndWaitBack(Message msg)
+        async Task<bool> SendMsgAndWaitBack(BaseEvent msg)
         {
             msg.SerialId = (int)id*10000 +  msgUniId++;
             Log.Info($"{id} {msg.GetType()} 发送消息:{JsonConvert.SerializeObject(msg)}");
@@ -117,7 +116,7 @@ namespace Geek.Server.TestPressure.Logic
 
 
 
-        public void OnRevice(Message msg)
+        public void OnRevice(BaseEvent msg)
         {
             Log.Info($"收到消息:{msg.TypeId} {Geek.Server.HotData.MemoryPackTypeMapping.GetType(msg.TypeId)} {JsonConvert.SerializeObject(msg)}"); 
 

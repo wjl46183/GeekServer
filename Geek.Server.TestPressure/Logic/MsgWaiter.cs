@@ -14,12 +14,12 @@ namespace Geek.Server.TestPressure.Logic
             public bool IsCompleted => cmp;
             public bool GetResult() => result;
             public Awaiter GetAwaiter() => this;
-            int uid;
+            long _serialId;
             string msg;
             bool cmp = false;
-            public Awaiter(int uid,string msg)
+            public Awaiter(long serialId,string msg)
             {
-                this.uid = uid;
+                this._serialId = serialId;
                 this.msg = msg;
                 timer = new Timer(TimeOut, null, 10000, -1);
             }
@@ -49,13 +49,13 @@ namespace Geek.Server.TestPressure.Logic
 
             void TimeOut(object state)
             {
-                Log.Error($"等待消息超时:{uid} {msg} {cmp}");
+                Log.Error($"等待消息超时:{_serialId} {msg} {cmp}");
                 Complete(false); 
             }
         }
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private readonly Dictionary<int, Awaiter> waitDic = new();
+        private readonly Dictionary<long, Awaiter> waitDic = new();
 
         //long id;
         //public MsgWaiter(long id)
@@ -70,39 +70,39 @@ namespace Geek.Server.TestPressure.Logic
             waitDic.Clear();
         }
 
-        public Awaiter StartWait(int uniId,string msg)
+        public Awaiter StartWait(long serialId,string msg)
         {
             Awaiter waiter = null;
             lock (waitDic)
             {
-                if (!waitDic.ContainsKey(uniId))
+                if (!waitDic.ContainsKey(serialId))
                 {
-                    waiter = new Awaiter(uniId,msg);
-                    waitDic.Add(uniId, waiter);
+                    waiter = new Awaiter(serialId,msg);
+                    waitDic.Add(serialId, waiter);
                 }
                 else
                 {
-                    Log.Error("发现重复消息id：" + uniId);
+                    Log.Error("发现重复消息id：" + serialId);
                 }
                 return waiter;
             }
         }
 
-        public void EndWait(int uniId, bool result = true)
+        public void EndWait(long serialId, bool result = true)
         {
-            if (!result) Log.Error("await失败：" + uniId);
+            if (!result) Log.Error("await失败：" + serialId);
             Awaiter waiter = null;
             lock (waitDic)
             {
-                if (waitDic.ContainsKey(uniId))
+                if (waitDic.ContainsKey(serialId))
                 {
-                    waiter = waitDic[uniId];
-                    waitDic.Remove(uniId); 
+                    waiter = waitDic[serialId];
+                    waitDic.Remove(serialId); 
                 }
                 else
                 {
-                    if (uniId > 0)
-                        Log.Error("找不到EndWait：" + uniId + ">size：" + waitDic.Count);
+                    if (serialId > 0)
+                        Log.Error("找不到EndWait：" + serialId + ">size：" + waitDic.Count);
                 }
                 waiter?.Complete(result); 
             }

@@ -10,10 +10,15 @@ namespace Geek.Server.Core.Net
     /// 消息基类型
     /// </summary>
     [MemoryPackable]
-    public partial class Message : ITypeId,ISafeObjectPool
+    public partial class BaseEvent : ITypeId,ISafeObjectPool
     {
-
-        protected Message()
+        /// <summary>
+        /// 消息唯一ID
+        /// </summary>
+        /// 
+        public static long SERIAL_ID = 0;
+        
+        protected BaseEvent()
         {
             
         }
@@ -21,7 +26,7 @@ namespace Geek.Server.Core.Net
         /// <summary>
         /// 消息唯一id
         /// </summary>
-        public int SerialId { get; set; }
+        public long SerialId { get; set; }
         
         /// <summary>
         /// 消息类型唯一ID
@@ -44,6 +49,7 @@ namespace Geek.Server.Core.Net
         /// </summary>
         public virtual void OnUse()
         {
+            SerialId = Interlocked.Increment(ref SERIAL_ID);
         }
 
         /// <summary>

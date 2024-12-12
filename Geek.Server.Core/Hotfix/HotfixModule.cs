@@ -39,12 +39,7 @@ namespace Geek.Server.Core.Hotfix
         /// <summary>
         /// msgId -> handler
         /// </summary>
-        readonly Dictionary<int, Type> tcpHandlerMap = new();
-
-        /// <summary>
-        /// actorType -> evtId -> listeners
-        /// </summary>
-        readonly Dictionary<ActorType, Dictionary<int, List<IEventListener>>> actorEvtListeners = new();
+        readonly Dictionary<int, Type> tcpHandlerMap = new();  
 
         readonly bool useAgentWrapper = true;
 
@@ -112,6 +107,9 @@ namespace Geek.Server.Core.Hotfix
             }
         }
 
+        /// <summary>
+        /// 重新加载引用的dll，防止热更时出现dll加载错误
+        /// </summary>
         private void LoadRefAssemblies()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -133,7 +131,6 @@ namespace Geek.Server.Core.Hotfix
             foreach (var type in HotfixAssembly.GetTypes())
             {
                 if (!AddAgent(type)
-                    && !AddEvent(type)
                     && !AddTcpHandler(type)
                     && !AddHttpHandler(type))
                 {
@@ -186,35 +183,6 @@ namespace Geek.Server.Core.Hotfix
             return true;
         }
 
-        private bool AddEvent(Type type)
-        {
-            if (!type.IsImplWithInterface(typeof(IEventListener)))
-                return false;
-
-            var compAgentType = type.BaseType.GetGenericArguments()[0];
-            var compType = compAgentType.BaseType.GetGenericArguments()[0];
-            var actorType = CompRegister.CompActorDic[compType];
-            var evtListenersDic = actorEvtListeners.GetOrAdd(actorType);
-
-            bool find = false;
-            foreach (var attr in type.GetCustomAttributes())
-            {
-                if (attr is EventInfoAttribute evt)
-                {
-                    find = true;
-
-                    var evtId = evt.EventId;
-                    var listeners = evtListenersDic.GetOrAdd(evtId);
-                    listeners.Add((IEventListener)Activator.CreateInstance(type));
-                }
-            }
-            if (!find)
-            {
-                throw new Exception($"IEventListener:{type.FullName}没有指定监听的事件");
-            }
-            return true;
-        }
-
         private bool AddAgent(Type type)
         {
             if (!type.IsImplWithInterface(typeof(ICompAgent)))
@@ -236,24 +204,6 @@ namespace Geek.Server.Core.Hotfix
             return true;
         }
 
-        internal BaseMessageHandler GetTcpHandler(int msgId)
-        {
-            if (tcpHandlerMap.TryGetValue(msgId, out var handlerType))
-            {
-                var ins = Activator.CreateInstance(handlerType);
-                if (ins is BaseMessageHandler handler)
-                {
-                    return handler;
-                }
-                else
-                {
-                    throw new Exception($"错误的tcp handler类型，{ins.GetType().FullName}");
-                }
-            }
-            return null;
-            //throw new HandlerNotFoundException($"消息id：{msgId}");
-        }
-
         internal BaseHttpHandler GetHttpHandler(string cmd)
         {
             if (httpHandlerMap.TryGetValue(cmd, out var handler))
@@ -270,16 +220,6 @@ namespace Geek.Server.Core.Hotfix
             var agent = (T)Activator.CreateInstance(useAgentWrapper ? agentAgentWrapperMap[agentType] : agentType);
             agent.Owner = comp;
             return agent;
-        }
-
-        internal List<IEventListener> FindListeners(ActorType actorType, int evtId)
-        {
-            if (actorEvtListeners.TryGetValue(actorType, out var evtListeners)
-                && evtListeners.TryGetValue(evtId, out var listeners))
-            {
-                return listeners;
-            }
-            return null;
         }
 
         readonly ConcurrentDictionary<string, object> typeCacheMap = new();

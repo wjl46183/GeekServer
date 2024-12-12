@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Geek.Server.Core.Actors.Impl;
 using Geek.Server.Core.Comps;
+using Geek.Server.Core.Hotfix;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Timer;
 
@@ -8,11 +9,11 @@ namespace Geek.Server.Core.Actors
 {
     sealed public class Actor
     {
-
         private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
-        
 
         private readonly ConcurrentDictionary<Type, BaseComp> compDic = new();
+        
+        public const int TIME_OUT = int.MaxValue;
 
         public long Id { get; init; }
 
@@ -39,7 +40,7 @@ namespace Geek.Server.Core.Actors
 
         public async Task<ICompAgent> GetCompAgent(Type agentType)
         {
-            var compType = agentType.BaseType.GetGenericArguments()[0];
+            var compType = HotfixMgr.GetCompType(agentType);
             var comp = compDic.GetOrAdd(compType, k => CompRegister.NewComp(this, k));
             var agent = comp.GetAgent(agentType);
             if (!comp.IsActive)
@@ -52,8 +53,6 @@ namespace Geek.Server.Core.Actors
             }
             return agent;
         }
-
-        public const int TIME_OUT = int.MaxValue;
 
         public Actor(long id, ActorType type)
         {

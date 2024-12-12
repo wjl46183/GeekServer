@@ -55,7 +55,6 @@ namespace Geek.Server.Core.Comps
                     throw new Exception($"comp:{type.FullName}未绑定actor类型");
                 }
             }
-            Log.Info($"初始化组件注册完成");
             return Task.CompletedTask;
         }
 

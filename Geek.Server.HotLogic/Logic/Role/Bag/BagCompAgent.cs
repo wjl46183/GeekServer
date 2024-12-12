@@ -1,11 +1,8 @@
-using Geek.Server.Main.Common.Event;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Net.BaseHandler;
-using Geek.Server.Core.Utils;
-using Geek.Server.HotLogic.Common.Events;
+using Geek.Server.HotData.Proto;
 using Geek.Server.HotLogic.Logic.Role.Base;
-using Geek.Server.Storage.Role.Bag;
-using Geek.Server.Storage.Role.Bag.Comp;
+using Geek.Server.Storage.Comp;
 
 namespace Geek.Server.HotLogic.Logic.Role.Bag
 {
@@ -67,7 +64,7 @@ namespace Geek.Server.HotLogic.Logic.Role.Bag
             //.....
 
             //合成成功后分发一个获得宠物的事件(在PetCompAgent中监听此事件)
-            this.Dispatch(EventID.GotNewPet, new OneParam<int>(1000));
+            // this.Dispatch(EventID.GotNewPet, new OneParam<int>(1000));
 
             var res = ResComposePet.Create();
             res.PetId = 1000;

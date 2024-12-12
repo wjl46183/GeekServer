@@ -33,6 +33,8 @@
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.57.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.4" />
     <PackageReference Include="Standart.Hash.xxHash" Version="4.0.5" />
+    <ProjectReference Include="..\Geek.Server.CodeGenerator\Geek.Server.CodeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    
   </ItemGroup>
 
 </Project>

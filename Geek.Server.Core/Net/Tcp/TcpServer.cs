@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Logging;
@@ -16,29 +15,9 @@ namespace Geek.Server.Core.Net.Tcp
         static WebApplication app { get; set; }
 
         /// <summary>
-        /// 启动
+        /// 添加Tcp连接
         /// </summary>
         /// <param name="port"></param>
-        public static Task Start(int port)
-        {
-            var builder = WebApplication.CreateBuilder();
-            builder.WebHost.UseKestrel(options =>
-            {
-                options.ListenAnyIP(port, builder =>
-                {
-                    builder.UseConnectionHandler<TcpConnectionHandler>();
-                });
-            })
-            .ConfigureLogging(logging =>
-            {
-                logging.SetMinimumLevel(LogLevel.Error);
-            })
-            .UseNLog();
-
-            var app = builder.Build();
-            return app.StartAsync();
-        }
-
         public static Task Start(int port, Action<ListenOptions> configure)
         {
             var builder = WebApplication.CreateBuilder();

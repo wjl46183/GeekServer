@@ -3,10 +3,10 @@ using Geek.Server.Core.Comps;
 using Geek.Server.Core.Storage;
 using MemoryPack;
 
-namespace Geek.Server.Storage.Services;
+namespace Geek.Server.Storage;
 
 [MemoryPackable]
-[SaveState(ActorType.Server)]
+[SaveState(ActorType.PhysicServer)]
 public partial class ServerState : BaseState
 {
     /// <summary>

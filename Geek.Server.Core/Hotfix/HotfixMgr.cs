@@ -4,8 +4,9 @@ using Geek.Server.Core.Actors;
 using Geek.Server.Core.Comps;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
+using Geek.Server.Core.Net;
 using Geek.Server.Core.Net.BaseHandler;
-using Geek.Server.Core.Net.Http;
+using Geek.Server.Core.Net.Http; 
 using Geek.Server.Core.Net.Tcp.Handler;
 
 namespace Geek.Server.Core.Hotfix
@@ -14,13 +15,17 @@ namespace Geek.Server.Core.Hotfix
     {
         internal static volatile bool DoingHotfix = false;
 
-        private static volatile HotfixModule module = null;
+        private static volatile HotfixModule module = null; 
 
         public static Assembly HotfixAssembly => module?.HotfixAssembly;
 
         private static readonly ConcurrentDictionary<int, HotfixModule> oldModuleMap = new();
 
         public static DateTime ReloadTime { get; private set; }
+        
+        static Func<int, Type> msgGetter;
+        
+        static Func<Type, BaseEvent> msgCreater;
 
         public static async Task<bool> LoadHotfixModule(string dllVersion = "")
         {
@@ -94,33 +99,33 @@ namespace Geek.Server.Core.Hotfix
             return module.GetAgent<T>(comp);
         }
 
-        public static BaseMessageHandler GetTcpHandler(int msgId)
-        {
-            return module.GetTcpHandler(msgId);
-        }
-
         public static BaseHttpHandler GetHttpHandler(string cmd)
         {
             return module.GetHttpHandler(cmd);
         }
 
-        static Func<int, Type> msgGetter;
         public static void SetMsgGetter(Func<int, Type> msgGetter)
         {
             HotfixMgr.msgGetter = msgGetter;
         }
+        
+        public static void SetMsgCreater(Func<Type, BaseEvent> msgGetter)
+        {
+            msgCreater = msgGetter;
+        }
 
         public static Type GetMsgType(int msgId)
         {
+            var coreType = MemoryPackTypeMapping.GetType(msgId);
+            if(coreType!= null)
+                return coreType;
             return msgGetter(msgId);
         }
-
-        public static List<IEventListener> FindListeners(ActorType actorType, int evtId)
+        
+        public static BaseEvent CreateMsgType(Type type)
         {
-            return module.FindListeners(actorType, evtId) ?? EMPTY_LISTENER_LIST;
+            return msgCreater(type);
         }
-
-        private static readonly List<IEventListener> EMPTY_LISTENER_LIST = new();
 
         /// <summary>
         /// 获取实例

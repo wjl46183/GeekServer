@@ -3,7 +3,7 @@ using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Timer.Handler;
 using Geek.Server.Core.Utils;
 using Geek.Server.HotLogic.Logic.Role.Base;
-using Geek.Server.Storage.Services.Comp;
+using Geek.Server.Storage.Comp;
 
 namespace Geek.Server.HotLogic.Logic.Server
 {

@@ -3,7 +3,7 @@ using Geek.Server.Core.Net;
 using MemoryPack;
 using Geek.Server.Core.PolymorphicType;
 
-namespace Geek.Server.Proto
+namespace Geek.Server.HotData.Proto
 {
     public enum TestEnum
     {
@@ -19,7 +19,7 @@ namespace Geek.Server.Proto
     }
 
     [MemoryPackable]
-    public partial class A : Message
+    public partial class A : BaseEvent
     {
         public int Age { get; set; }
         public TestEnum E { get; set; } = TestEnum.B;
@@ -68,13 +68,16 @@ namespace Geek.Server.Proto
     /// 请求登录
     /// </summary>
     [MemoryPackable]
-    public partial class ReqLogin : Message
+    public partial class EventLogin : EventLinkCheck
     {
-        public string UserName { get; set; }
         public string Platform { get; set; }
         public int SdkType { get; set; }
         public string SdkToken { get; set; }
-        public string Device { get; set; }
+        
+        /// <summary>
+        /// 登陆指定逻辑服
+        /// </summary>
+        public string logicServerId { get; set; }
     }
 
 
@@ -82,7 +85,7 @@ namespace Geek.Server.Proto
     /// 请求登录
     /// </summary>
     [MemoryPackable]
-    public partial class ResLogin : Message
+    public partial class ResLogin : BaseEvent
     {
         /// <summary>
         /// 登陆结果，0成功，其他时候为错误码
@@ -96,7 +99,7 @@ namespace Geek.Server.Proto
     /// 等级变化
     /// </summary>
     [MemoryPackable]
-    public partial class ResLevelUp : Message
+    public partial class ResLevelUp : BaseEvent
     {
         /// <summary>
         /// 玩家等级
@@ -108,7 +111,7 @@ namespace Geek.Server.Proto
     /// 双向心跳/收到恢复同样的消息
     /// </summary>
     [MemoryPackable]
-    public partial class HearBeat : Message
+    public partial class HearBeat : BaseEvent
     {
         /// <summary>
         /// 当前时间
@@ -120,12 +123,12 @@ namespace Geek.Server.Proto
     /// 客户端每次请求都会回复错误码
     /// </summary>
     [MemoryPackable]
-    public partial class ResErrorCode : Message
+    public partial class ResErrorCode : BaseEvent
     {
     }
 
     [MemoryPackable]
-    public partial class ResPrompt : Message
+    public partial class ResPrompt : BaseEvent
     {
         ///<summary>提示信息类型（1Tip提示，2跑马灯，3插队跑马灯，4弹窗，5弹窗回到登陆，6弹窗退出游戏）</summary>
 		public int Type { get; set; }

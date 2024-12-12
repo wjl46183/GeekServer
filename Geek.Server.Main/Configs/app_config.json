@@ -1,7 +1,7 @@
 ﻿{
   "IsDebug": true,
   "ServerId": 1001, //[1000,9999]
-  "ServerName": "geek_server",
+  "ServerName": "xgame_develop",
   "LocalIp": "192.168.0.99",
   "TcpPort": 8899,
   "HttpCode": "inner_httpcode",

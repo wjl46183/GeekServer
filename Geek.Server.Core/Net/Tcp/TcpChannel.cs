@@ -18,13 +18,13 @@ namespace Geek.Server.Core.Net.Tcp
 
         private readonly SemaphoreSlim sendSemaphore = new(0);
 
-        protected Func<Message, Task> onMessage;
+        protected Func<BaseEvent, Task> onMessage;
 
         protected long lastReviceTime = 0;
         protected int lastOrder = 0;
         const int MAX_RECV_SIZE = 1024 * 1024 * 5; /// 从客户端接收的包大小最大值（单位：字节 5M）
 
-        public TcpChannel(ConnectionContext context, Func<Message, Task> onMessage = null)
+        public TcpChannel(ConnectionContext context, Func<BaseEvent, Task> onMessage = null)
         {
             this.onMessage = onMessage;
             Context = context;
@@ -120,7 +120,7 @@ namespace Geek.Server.Core.Net.Tcp
             }
         }
 
-        protected virtual bool TryParseMessage(ref ReadOnlySequence<byte> input, out Message msg)
+        protected virtual bool TryParseMessage(ref ReadOnlySequence<byte> input, out BaseEvent msg)
         {
             msg = default;
             var bufEnd = input.End;
@@ -165,12 +165,13 @@ namespace Geek.Server.Core.Net.Tcp
             }
             else
             {
-                var message = MemoryPackSerializer.Deserialize(msgType,payload.Slice(16)) as Message;
-                if (message.TypeId != msgId)
+                var tmpMsg = (object)HotfixMgr.CreateMsgType(msgType);
+                MemoryPackSerializer.Deserialize(msgType,payload.Slice(16),ref tmpMsg);
+                msg = tmpMsg as BaseEvent;
+                if (msg == null || msg.TypeId != msgId)
                 {
-                    throw new Exception($"解析消息错误，注册消息id和消息无法对应.real:{message.TypeId}, register:{msgId}");
+                    throw new Exception($"解析消息错误，注册消息id和消息无法对应.real:{msg.TypeId}, register:{msgId}");
                 }
-                msg = message;
             }
             input = input.Slice(input.GetPosition(msgLen));
             return true;
@@ -229,7 +230,7 @@ namespace Geek.Server.Core.Net.Tcp
             return true;
         }
 
-        public override void Write(Message msg)
+        public override void Write(BaseEvent msg)
         {
             if (IsClose())
                 return;

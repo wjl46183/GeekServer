@@ -4,7 +4,7 @@
     {
         public NetChannel Channel { get; set; }
 
-        public Message Msg { get; set; }
+        public BaseEvent Msg { get; set; }
 
         public virtual Task Init()
         {

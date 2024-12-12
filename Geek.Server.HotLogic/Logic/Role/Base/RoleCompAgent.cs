@@ -1,29 +1,27 @@
-﻿
-using Geek.Server.Main.Common;
-using Geek.Server.Main.Common.Event;
-using Geek.Server.Main.Common.Session;
+﻿using Geek.Server.Main.Common;
+using Geek.Server.Core.Net.Session;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Events;
 using Geek.Server.Core.Hotfix.Agent;
 using Geek.Server.Core.Net;
 using Geek.Server.Core.Timer;
+using Geek.Server.HotData.Proto;
 using Geek.Server.HotLogic.Logic.Role.Bag;
 using Geek.Server.HotLogic.Logic.Server;
-using Geek.Server.HotLogic.Common.Handler;
-using Geek.Server.Storage.Role.Base;
-using Geek.Server.Storage.Role.Base.Comp;
+using Geek.Server.Storage.Comp;
 
 namespace Geek.Server.HotLogic.Logic.Role.Base
 {
-
     public static class RoleCompAgentExt
     {
         private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
-        public static async Task NotifyClient(this ICompAgent agent, Message msg, int uniId = 0, StateCode code = StateCode.Success)
+
+        public static async Task NotifyClient(this ICompAgent agent, BaseEvent msg, long serialId = 0,
+            StateCode code = StateCode.Success)
         {
             var roleComp = await agent.GetCompAgent<RoleCompAgent>();
             if (roleComp != null)
-                roleComp.NotifyClient(msg, uniId, code);
+                roleComp.NotifyClient(msg, serialId, code);
             else
                 LOGGER.Warn($"{agent.OwnerType}未注册RoleComp组件");
         }
@@ -33,17 +31,8 @@ namespace Geek.Server.HotLogic.Logic.Role.Base
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-
-        [Event(EventID.SessionRemove)]
-        private class EL : EventListener<RoleCompAgent>
-        {
-            protected override Task HandleEvent(RoleCompAgent agent, Event evt)
-            {
-                return agent.OnLogout();
-            }
-        }
-
-        public async Task<ResLogin> OnLogin(ReqLogin reqLogin, bool isNewRole)
+        [Discard]
+        public virtual async Task OnLogin(EventLogin eventLogin, bool isNewRole)
         {
             SetAutoRecycle(false);
             if (isNewRole)
@@ -51,12 +40,14 @@ namespace Geek.Server.HotLogic.Logic.Role.Base
                 Comp.State.CreateTime = DateTime.Now;
                 Comp.State.Level = 1;
                 Comp.State.VipLevel = 1;
-                Comp.State.RoleName = new System.Random().Next(1000, 10000).ToString();//随机给一个
+                Comp.State.RoleName = new System.Random().Next(1000, 10000).ToString(); //随机给一个
                 //激活背包组件
                 await GetCompAgent<BagCompAgent>();
             }
+
             Comp.State.LoginTime = DateTime.Now;
-            return BuildLoginMsg();
+            var resLogin = BuildLoginMsg();
+            NotifyClient(resLogin);
         }
 
         public async Task OnLogout()
@@ -89,10 +80,26 @@ namespace Geek.Server.HotLogic.Logic.Role.Base
             return Task.CompletedTask;
         }
 
-        public void NotifyClient(Message msg, int uniId = 0, StateCode code = StateCode.Success)
+        /// <summary>
+        /// 通知绑定的客户端，无消息体
+        /// </summary>
+        /// <param name="serialId"></param>
+        /// <param name="code"></param>
+        public void NotifyClient(long serialId = 0, StateCode code = StateCode.Success)
         {
             var session = SessionManager.Get(ActorId);
-            session?.Channel?.Write(msg, uniId, code);
+            session?.Channel?.Write(serialId, (int)code, "");
+        }
+
+        /// <summary>
+        /// 通知绑定的客户端
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="serialId"></param>
+        public void NotifyClient(BaseEvent msg, long serialId = 0)
+        {
+            var session = SessionManager.Get(ActorId);
+            session?.Channel?.Write(msg, serialId);
         }
     }
 }

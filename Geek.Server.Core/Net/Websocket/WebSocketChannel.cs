@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Net.WebSockets;
+using Geek.Server.Core.Hotfix;
 using MemoryPack;
 using Newtonsoft.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -17,11 +18,11 @@ namespace Geek.Server.Core.Net.Websocket
         private const int bufferSize = 1024 * 16;
         static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();
         WebSocket webSocket;
-        readonly Action<Message> onMessage;
-        protected readonly ConcurrentQueue<Message> sendQueue = new();
+        readonly Action<BaseEvent> onMessage;
+        protected readonly ConcurrentQueue<BaseEvent> sendQueue = new();
         protected readonly SemaphoreSlim newSendMsgSemaphore = new(0); 
 
-        public WebSocketChannel(WebSocket webSocket, string remoteAddress, Action<Message> onMessage = null)
+        public WebSocketChannel(WebSocket webSocket, string remoteAddress, Action<BaseEvent> onMessage = null)
         {
             this.RemoteAddress = remoteAddress;
             this.webSocket = webSocket;
@@ -121,7 +122,7 @@ namespace Geek.Server.Core.Net.Websocket
             }
         }
 
-        Message DeserializeMsg(ReadOnlySpan<byte> buffer)
+        BaseEvent DeserializeMsg(ReadOnlySpan<byte> buffer)
         {
             Type type = null;
             int typeId = BitConverter.ToInt32(buffer.Slice(0,4));
@@ -129,9 +130,9 @@ namespace Geek.Server.Core.Net.Websocket
             {
                 throw new MemoryPackSerializationException($"找不到 Type Id: {typeId} 检查是否注册到： {nameof(PolymorphicTypeMapper)}");
             }
-
-            Message msg = MemoryPackSerializer.Deserialize(type, buffer) as Message;
-            return msg;
+            var tmpMsg = (object)HotfixMgr.CreateMsgType(type);
+            MemoryPackSerializer.Deserialize(type,buffer.Slice(16),ref tmpMsg);
+            return tmpMsg as BaseEvent;
         }
 
         private async Task DoReceive()
@@ -183,7 +184,7 @@ namespace Geek.Server.Core.Net.Websocket
             }
         }
 
-        public override void Write(Message msg)
+        public override void Write(BaseEvent msg)
         {
             sendQueue.Enqueue(msg);
             newSendMsgSemaphore.Release();

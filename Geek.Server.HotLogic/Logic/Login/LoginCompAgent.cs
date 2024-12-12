@@ -1,15 +1,14 @@
 ﻿using Geek.Server.Main.Common;
-using Geek.Server.Main.Common.Session;
+using Geek.Server.Core.Net.Session;
 using Geek.Server.Core.Actors;
 using Geek.Server.Core.Hotfix.Agent;
-using Geek.Server.Core.Net;
 using Geek.Server.Core.Net.BaseHandler;
 using Geek.Server.Core.Utils;
-using Geek.Server.Storage.Login;
-using Geek.Server.Storage.Login.Comp;
-using Geek.Server.HotLogic.Common.Handler;
+using Geek.Server.HotData.Proto;
+using Geek.Server.Storage;
 using Geek.Server.HotLogic.Logic.Role.Base;
 using Geek.Server.HotLogic.Logic.Server;
+using Geek.Server.Storage.Comp;
 
 namespace Geek.Server.HotLogic.Logic.Login
 {
@@ -18,104 +17,46 @@ namespace Geek.Server.HotLogic.Logic.Login
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         [BindEvent]
-        public virtual async ValueTask OnLogin(ReqLogin reqLogin)
+        public virtual async ValueTask OnLogin(EventLogin eventLogin)
         {
+            if (string.IsNullOrEmpty(eventLogin.OpenId))
+            {
+                eventLogin.ErrCode = (int)StateCode.AccountCannotBeNull;
+                return;
+            }
             
-            if (string.IsNullOrEmpty(reqLogin.UserName))
+            if (string.IsNullOrEmpty(eventLogin.logicServerId))
             {
-                reqLogin.ErrCode = (int)StateCode.AccountCannotBeNull;
-                return;
-            }
-
-            if (reqLogin.Platform != "android" && reqLogin.Platform != "ios" && reqLogin.Platform != "unity")
-            {
-                //验证平台合法性
-                reqLogin.ErrCode = (int)StateCode.UnknownPlatform;
+                eventLogin.ErrCode = (int)StateCode.ServerIdError;
                 return;
             }
 
             //查询角色账号，这里设定每个服务器只能有一个角色
-            var roleId = GetRoleIdOfPlayer(reqLogin.UserName, reqLogin.SdkType);
+            var roleId = GetRoleIdOfPlayer(eventLogin.OpenId);
             var isNewRole = roleId <= 0;
             if (isNewRole)
             {
                 //没有老角色，创建新号
                 roleId = IdGenerator.GetActorID(ActorType.Role);
-                CreateRoleToPlayer(reqLogin.UserName, reqLogin.SdkType, roleId);
+                CreateRoleToPlayer(eventLogin.OpenId, eventLogin.SdkType, roleId);
                 // Log.Info("创建新号:" + roleId);
             }
-
-            //添加到session
-            var session = new Session
-            {
-                Id = roleId,
-                Time = DateTime.Now,
-                // Channel = channel, 
-                Sign = reqLogin.Device
-            };
-            SessionManager.Add(session);
 
             //登陆流程
             var roleComp = await ActorMgr.GetCompAgent<RoleCompAgent>(roleId);
             //从登录线程-->调用Role线程 所以需要入队
-            var resLogin = await roleComp.OnLogin(reqLogin, isNewRole);
-            // channel.Write(resLogin, reqLogin.SerialId, StateCode.Success);
+            await roleComp.OnLogin(eventLogin, isNewRole);
 
             //加入在线玩家
             var serverComp = await ActorMgr.GetCompAgent<ServerCompAgent>();
             await serverComp.AddOnlineRole(ActorId);
+            //激活 session
+            SessionManager.Active(eventLogin.cacheSessionSerialId,roleId,eventLogin.Sign);
         }
 
-        public async Task OnLogin(NetChannel channel, ReqLogin reqLogin)
+        private long GetRoleIdOfPlayer(string openId)
         {
-            if (string.IsNullOrEmpty(reqLogin.UserName))
-            {
-                channel.Write(null, reqLogin.SerialId, StateCode.AccountCannotBeNull); 
-                return;
-            }
-
-            if (reqLogin.Platform != "android" && reqLogin.Platform != "ios" && reqLogin.Platform != "unity")
-            {
-                //验证平台合法性
-                channel.Write(null, reqLogin.SerialId, StateCode.UnknownPlatform);
-                return;
-            }
-
-            //查询角色账号，这里设定每个服务器只能有一个角色
-            var roleId = GetRoleIdOfPlayer(reqLogin.UserName, reqLogin.SdkType);
-            var isNewRole = roleId <= 0;
-            if (isNewRole)
-            {
-                //没有老角色，创建新号
-                roleId = IdGenerator.GetActorID(ActorType.Role);
-                CreateRoleToPlayer(reqLogin.UserName, reqLogin.SdkType, roleId);
-                // Log.Info("创建新号:" + roleId);
-            }
-
-            //添加到session
-            var session = new Session
-            {
-                Id = roleId,
-                Time = DateTime.Now,
-                Channel = channel,
-                Sign = reqLogin.Device
-            };
-            SessionManager.Add(session);
-
-            //登陆流程
-            var roleComp = await ActorMgr.GetCompAgent<RoleCompAgent>(roleId);
-            //从登录线程-->调用Role线程 所以需要入队
-            var resLogin = await roleComp.OnLogin(reqLogin, isNewRole);
-            channel.Write(resLogin, reqLogin.SerialId, StateCode.Success);
-
-            //加入在线玩家
-            var serverComp = await ActorMgr.GetCompAgent<ServerCompAgent>();
-            await serverComp.AddOnlineRole(ActorId);
-        }
-
-        private long GetRoleIdOfPlayer(string userName, int sdkType)
-        {
-            var playerId = $"{sdkType}_{userName}";
+            var playerId = openId;
             if (Comp.State.PlayerMap.TryGetValue(playerId, out var state))
             {
                 if (state.RoleMap.TryGetValue(Settings.ServerId, out var roleId))

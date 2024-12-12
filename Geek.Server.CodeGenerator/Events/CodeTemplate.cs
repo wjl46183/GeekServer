@@ -26,9 +26,11 @@ namespace Geek.Server.CodeGenerator.Events
                 funcKVArr.AppendLine($"\t\t\t{{{Tools.GetStringHash(keyValuePair.Key)},On{keyValuePair.Key}}},");
             }
 
-            var sourceBuilder = new StringBuilder($@"
-using Geek.Server.Core.Net;
+            var sourceBuilder = new StringBuilder(
+$@"using Geek.Server.Core.Net;
 using Geek.Server.Core.Actors;
+using Geek.Server.Storage;
+using Geek.Server.HotData.Proto;
 namespace {namespaceName}
 {{
 
@@ -78,7 +80,7 @@ namespace {namespaceName}
 
 
             var sourceBuilder = new StringBuilder($@"
-        public static async ValueTask On{eventClassName}(long actorId, Message evt)
+        public static async ValueTask On{eventClassName}(long actorId, BaseEvent evt)
         {{
             var tmp{eventClassName} = evt as {eventClassName};
 {kvStr}
