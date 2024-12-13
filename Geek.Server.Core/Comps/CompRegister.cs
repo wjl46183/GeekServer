@@ -55,36 +55,31 @@ namespace Geek.Server.Core.Comps
                     throw new Exception($"comp:{type.FullName}未绑定actor类型");
                 }
             }
+
             return Task.CompletedTask;
         }
 
         public static async Task ActiveGlobalComps()
         {
-            try
+            Log.Info($"激活全局Actor...");
+
+            foreach (var kv in ActorCompDic)
             {
-                foreach (var kv in ActorCompDic)
+                var actorType = kv.Key;
+                foreach (var compType in kv.Value)
                 {
-                    var actorType = kv.Key;
-                    foreach (var compType in kv.Value)
+                    var agentType = HotfixMgr.GetAgentType(compType);
+                    if (agentType == null)
                     {
-                        var agentType = HotfixMgr.GetAgentType(compType);
-                        if (agentType == null)
-                        {
-                            throw new Exception($"{compType}未实现agent");
-                        }
-                    }
-                    if (actorType > ActorType.Separator)
-                    {
-                        Log.Info($"激活全局Actor: {actorType}");
-                        await ActorMgr.GetOrNew(IdGenerator.GetActorID(actorType));
+                        throw new Exception($"{compType}未实现agent");
                     }
                 }
-                Log.Info($"激活全局组件并检测组件是否都包含Agent实现完成");
-            }
-            catch (Exception)
-            {
-                Log.Error($"激活全局组件并检测组件是否都包含Agent实现失败");
-                throw;
+
+                if (actorType > ActorType.Separator)
+                {
+                    Log.Info($"激活全局Actor: {actorType}");
+                    await ActorMgr.GetOrNew(IdGenerator.GetActorID(actorType));
+                }
             }
         }
 
@@ -106,6 +101,7 @@ namespace Geek.Server.Core.Comps
             {
                 throw new Exception($"获取不属于此actor：{actor.Type}的comp:{compType.FullName}");
             }
+
             var comp = (BaseComp)Activator.CreateInstance(compType);
             comp.Actor = actor;
             return comp;

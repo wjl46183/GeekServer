@@ -6,11 +6,14 @@ using Geek.Server.Core.Net.Http;
 using Geek.Server.Core.Net.Session;
 using Geek.Server.Core.Net.Tcp;
 using Geek.Server.Core.Net.Websocket;
+using Geek.Server.Core.Storage;
 using Geek.Server.Core.Timer;
 using Geek.Server.Core.Utils;
-using Geek.Server.HotData;
+using Geek.Server.HotData.Proto;
 using Geek.Server.HotLogic.EventHandle;
+using Geek.Server.Storage;
 using Microsoft.AspNetCore.Connections;
+using MemoryPackTypeMapping = Geek.Server.HotData.MemoryPackTypeMapping;
 
 namespace Geek.Server.HotLogic.Common
 {
@@ -25,38 +28,19 @@ namespace Geek.Server.HotLogic.Common
 
         public async Task<bool> OnLoadSuccess(bool reload)
         {
+            Log.Info($"设置消息类型映射、消息事件映射...");
+            UpdateMappings();
             if (reload)
             {
                 ActorMgr.ClearAgent();
                 return true;
             }
 
-            // 绑定消息类型
-            HotfixMgr.SetMsgGetter((i =>
-            {
-                var have = MemoryPackTypeMapping.GetIdTypeDict().ContainsKey(i);
-                if (!have)
-                {
-                    if (Core.MemoryPackTypeMapping.GetIdTypeDict().ContainsKey(i))
-                    {
-                        return Core.MemoryPackTypeMapping.GetIdTypeDict()[i];
-                    }
-                    else
-                    {
-                        Log.Error($"消息类型未找到：{i}");
-                        return null;
-                    }
-                }
+            Log.Info($"从Storage库存储数据结构到MongoDB...");
+            BsonClassMapHelper.RegisterAllClass(typeof(AccountState).Assembly);
 
-                return MemoryPackTypeMapping.GetIdTypeDict()[i];
-            }));
-            HotfixMgr.SetMsgCreater((type) => MemoryPackTypeMapping.Create(type));
-            //绑定事件处理器
-            EventHandleMgr.SetHandleMap(EventMapings.typeIdHandleFuncs);
-
-            await TcpServer.Start(Settings.TcpPort, builder => builder.UseConnectionHandler<TcpConnectionHandler>());
-            await WebSocketServer.Start(Settings.WebSocketUrl, new WebSocketConnectionHandler());
-            await HttpServer.Start(Settings.HttpPort);
+            Log.Info($"从Storage库注册组件...");
+            await CompRegister.Init(typeof(LoginState).Assembly);
 
             Log.Info("加载配置表...");
             (bool success, string msg) = ConfigManager.LoadTables();
@@ -67,6 +51,32 @@ namespace Geek.Server.HotLogic.Common
             GlobalTimer.Start();
             await CompRegister.ActiveGlobalComps();
             return true;
+        }
+
+        /// <summary>
+        /// 更新消息映射
+        /// </summary>
+        public static void UpdateMappings()
+        {
+            // 绑定消息类型
+            HotfixMgr.SetMsgGetter((i =>
+            {
+                if (MemoryPackTypeMapping.GetIdTypeDict().TryGetValue(i, out var type))
+                {
+                    return type;
+                }
+
+                if (Core.MemoryPackTypeMapping.GetIdTypeDict().TryGetValue(i, out type))
+                {
+                    return type;
+                }
+
+                Log.Error($"消息类型未找到：{i}");
+                return null;
+            }));
+            HotfixMgr.SetMsgCreater((type) => MemoryPackTypeMapping.Create(type));
+            //绑定事件处理器
+            EventHandleMgr.SetHandleMap(EventMapings.typeIdHandleFuncs);
         }
 
         public async Task Stop()

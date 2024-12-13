@@ -2,18 +2,6 @@
 
 namespace Geek.Server.Core.Storage
 {
-    public interface IGameDB
-    {
-        public void Open(string url, string dbName);
-        public void Close();
-        public Task Flush();
-
-        public Task<TState> LoadState<TState>(long id, Func<TState> defaultGetter = null)
-            where TState : BaseState, new();
-
-        public Task SaveState<TState>(TState state) where TState : BaseState;
-    }
-
     public class GameDB
     {
         static readonly NLog.Logger LOGGER = NLog.LogManager.GetCurrentClassLogger();

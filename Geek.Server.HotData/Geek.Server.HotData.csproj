@@ -27,7 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="exportData\**\*.*">
+		<Content Include="ExportData\**\*.*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>

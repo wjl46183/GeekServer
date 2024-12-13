@@ -34,11 +34,11 @@ namespace Geek.Server.Core.Comps
                     tasks.Add(saveFunc(true, force));
                 }
                 await Task.WhenAll(tasks);
-                Log.Info($"save all state, use: {(DateTime.Now - begin).TotalMilliseconds}ms");
+                Log.Info($"存储State耗时: {(DateTime.Now - begin).TotalMilliseconds}ms");
             }
             catch (Exception e)
             {
-                Log.Error($"save all state error \n{e}");
+                Log.Error($"存储错误： {e}");
             }
         }
 

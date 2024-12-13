@@ -1,13 +1,10 @@
 ﻿using Geek.Server.Core.Actors.Impl;
 using Geek.Server.Core.Comps;
 using Geek.Server.Core.Hotfix;
-using Geek.Server.Core.Net.Http;
-using Geek.Server.Core.Net.Tcp;
-using Geek.Server.Core.Net.Websocket;
 using Geek.Server.Core.Storage;
 using Geek.Server.Core.Utils;
-using Microsoft.AspNetCore.Connections;
-// using Geek.Server.Storage;
+using Geek.Server.HotData.Proto;
+using Geek.Server.Storage;
 using NLog;
 using NLog.Config;
 
@@ -20,30 +17,25 @@ namespace Geek.Server.LogicLaunch.Common
         {
             try
             {
-                //基础初始化 - 注册日志、配置、数据库等
                 var flag = Start();
                 if (!flag) return; //启动服务器失败
 
-                //框架初始化 - Actor模型设置递归检测规则
+                //Actor模型设置递归检测规则
                 ActorLimit.Init(ActorLimit.RuleType.None);
                 Log.Info($"Actor循环消息规则：{ActorLimit.RuleType.None}");
                 
-                //数据库初始化 - 建立链接
+                //数据库初始化
                 Log.Info($"数据库初始化...");
                 GameDB.Init(new MongoDBConnection());
                 GameDB.Open(Settings.MongoUrl, Settings.MongoDBName);
                 
+                Log.Info($"从Storage库注册组件...");
+                await CompRegister.Init(typeof(LoginState).Assembly);
                 Log.Info($"加载支持热更新的逻辑模块...");
-                //逻辑模块初始化 - 加载逻辑dll
                 await HotfixMgr.LoadHotfixModule();
-                
-                Log.Info($"启动网络...");
-                //启动网络模块
-                await TcpServer.Start(Settings.TcpPort, builder => builder.UseConnectionHandler<TcpConnectionHandler>());
-                await WebSocketServer.Start(Settings.WebSocketUrl, new WebSocketConnectionHandler());
-                await HttpServer.Start(Settings.HttpPort);
 
-                Log.Info("启动完成！");
+                Log.Info("进入游戏主循环...");
+                Console.WriteLine("进入游戏主循环!!!");
                 Settings.LauchTime = DateTime.Now;
                 Settings.AppRunning = true;
 
@@ -69,14 +61,15 @@ namespace Geek.Server.LogicLaunch.Common
             try
             {
                 string configPath = "Configs/app_config.json";
-                Log.Info($"初始化配置:{configPath}");
+                Console.WriteLine($"初始化配置:{configPath}");
                 Settings.Load<AppSetting>(configPath, ServerType.Game);
                 LogManager.Setup().SetupExtensions(s => s.RegisterConditionMethod("logState", (e) => Settings.IsDebug ? "debug" : "release"));
                 LogManager.Configuration = new XmlLoggingConfiguration("Configs/app_log.config");
                 LogManager.AutoShutdown = false;
 
-                Log.Info($"注册MongoDB类型解析...");
+                Console.WriteLine($"注册MongoDB类型解析...");
                 BsonClassMapHelper.SetConvention();
+                BsonClassMapHelper.RegisterAllClass(typeof(EventLogin).Assembly);
                 BsonClassMapHelper.RegisterAllClass(typeof(Program).Assembly);
 
                 return true;

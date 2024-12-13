@@ -79,7 +79,6 @@ namespace Geek.Server.HotData.Proto
         /// sdk类型
         /// </summary>
         public int SdkType { get; set; }
-        public string SdkToken { get; set; }
         
         /// <summary>
         /// 登陆指定逻辑服

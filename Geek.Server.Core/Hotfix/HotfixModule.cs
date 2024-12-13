@@ -78,12 +78,12 @@ namespace Geek.Server.Core.Hotfix
 
                 File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "dllPath.txt"), DllPath);
 
-                Log.Info($"hotfix dll init success: {DllPath}");
+                Log.Info($"热更新DLL加载成功: {DllPath}");
                 success = true;
             }
             catch (Exception e)
             {
-                Log.Error($"hotfix dll init failed...\n{e}");
+                Log.Error($"热更新DLL加载失败 \n{e}");
                 if (!reload)
                     throw;
             }
