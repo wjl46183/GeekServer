@@ -2,20 +2,14 @@
 {
 
     /// <summary>
-    /// 此方法会提供给其他Actor访问
-    /// </summary>
-    [Obsolete("过时的,请用[Service]代替")]
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class Api : Attribute { };
-
-    /// <summary>
     /// 此方法会提供给其他Actor访问(对外提供服务)
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class Service : Attribute { };
+    public class Api : Attribute { };
 
-
-    ///<summary>此方法线程安全</summary>
+    ///<summary>
+    /// 此方法线程安全
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ThreadSafe : Attribute { };
 

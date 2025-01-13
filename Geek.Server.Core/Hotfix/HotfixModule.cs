@@ -23,6 +23,8 @@ namespace Geek.Server.Core.Hotfix
         private DllLoader DllLoader = null;
 
         readonly string DllPath;
+        
+        readonly string HotfixDllName;
 
         internal IHotfixBridge HotfixBridge { get; private set; }
 
@@ -49,9 +51,10 @@ namespace Geek.Server.Core.Hotfix
 
         readonly bool useAgentWrapper = true;
 
-        internal HotfixModule(string dllPath)
+        internal HotfixModule(string dllPath,string hotfixDllName = "Geek.Server.HotLogic.dll")
         {
             DllPath = dllPath;
+            HotfixDllName = hotfixDllName;
         }
 
         internal HotfixModule()
@@ -66,7 +69,7 @@ namespace Geek.Server.Core.Hotfix
             bool success = false;
             try
             {
-                DllLoader = new DllLoader(DllPath);
+                DllLoader = new DllLoader(DllPath, HotfixDllName);
                 HotfixAssembly = DllLoader.HotfixDll;
                 if (!reload)
                 {

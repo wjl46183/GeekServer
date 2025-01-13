@@ -15,7 +15,7 @@ public class AccountCompAgent : BaseCompAgent<AccountStateComp>
         /// </summary>
         /// <param name="openId"></param>
         /// <returns></returns>
-        [Service]
+        [Api]
         public virtual async Task<bool> CheckAccount(string token)
         {
             return true;

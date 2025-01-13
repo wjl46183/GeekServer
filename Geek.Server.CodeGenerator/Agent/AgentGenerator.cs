@@ -118,7 +118,7 @@ namespace Geek.Server.CodeGenerator.Agent
                             foreach (var a in method.AttributeLists)
                             {
                                 var attStr = a.ToString().RemoveWhitespace();
-                                if (attStr.Contains("[Api]") || attStr.Contains("[Service]") || attStr.Contains("[BindEvent") || attStr.Contains("[BindEventAttribute"))
+                                if (attStr.Contains("[Api]") || attStr.Contains("[BindEvent") || attStr.Contains("[BindEventAttribute"))
                                 {
                                     mth.IsApi = true;
                                     if (attStr.Contains("[BindEvent") || attStr.Contains("[BindEventAttribute"))

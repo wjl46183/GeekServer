@@ -34,7 +34,7 @@ namespace Geek.Server.HotLogic.Logic.Server
         }
 
 
-        [Service]
+        [Api]
         [Discard]
         public virtual ValueTask AddOnlineRole(long actorId)
         {
@@ -42,7 +42,7 @@ namespace Geek.Server.HotLogic.Logic.Server
             return ValueTask.CompletedTask;
         }
 
-        [Service]
+        [Api]
         [Discard]
         public virtual ValueTask RemoveOnlineRole(long actorId)
         {
@@ -75,14 +75,14 @@ namespace Geek.Server.HotLogic.Logic.Server
             return Task.CompletedTask;
         }
 
-        [Service]
+        [Api]
         [ThreadSafe]
         public virtual Task<int> GetWorldLevel()
         {
             return Task.FromResult(Comp.State.WorldLevel);
         }
 
-        [Service]
+        [Api]
         public virtual Task<bool> IsOnline(long roleId)
         {
             foreach (var id in Comp.dynamicServerState.OnlineSet)
@@ -94,7 +94,7 @@ namespace Geek.Server.HotLogic.Logic.Server
         }
 
         /*******************演示代码**************************/
-        [Service]
+        [Api]
         [ThreadSafe]
         public virtual int DoSomething0()
         {

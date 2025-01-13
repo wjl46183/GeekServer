@@ -5,10 +5,10 @@ namespace Geek.Server.Core.Hotfix
 {
     internal class DllLoader
     {
-        public DllLoader(string dllPath)
+        public DllLoader(string dllPath,string hotfixDllName)
         {
-            Context = new HostAssemblyLoadContext();
-            HotfixDll = Context.LoadFromAssemblyPath(dllPath);
+            Context = new HostAssemblyLoadContext(dllPath);
+            HotfixDll = Context.LoadFromAssemblyPath(dllPath + hotfixDllName);
         }
 
         public Assembly HotfixDll { get; }
@@ -23,10 +23,22 @@ namespace Geek.Server.Core.Hotfix
 
         class HostAssemblyLoadContext : AssemblyLoadContext
         {
-            public HostAssemblyLoadContext() : base(true) { }
+            private string _dependencyPath;
 
-            protected override Assembly Load(AssemblyName assemblyName)
+            public HostAssemblyLoadContext(string dependencyPath)
             {
+                _dependencyPath = dependencyPath;
+                this.Resolving += OnResolving;
+            }
+
+            private Assembly OnResolving(AssemblyLoadContext context, AssemblyName assemblyName)
+            {
+                // 构造依赖项的完整路径
+                string dependencyDllPath = Path.Combine(_dependencyPath, assemblyName.Name + ".dll");
+                if (File.Exists(dependencyDllPath))
+                {
+                    return LoadFromAssemblyPath(dependencyDllPath);
+                }
                 return null;
             }
         }

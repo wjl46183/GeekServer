@@ -10,4 +10,5 @@ namespace Geek.Server.Storage;
 public partial class BagState : BaseState
 {
     public Dictionary<int, long> ItemMap = new Dictionary<int, long>();
+    public Dictionary<int, long> ItemMap21 = new Dictionary<int, long>();
 }
