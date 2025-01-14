@@ -116,9 +116,10 @@ namespace Geek.Server.Core.Hotfix
 
         public static Type GetMsgType(int msgId)
         {
-            var coreType = MemoryPackTypeMapping.GetType(msgId);
-            if(coreType!= null)
+            if(MemoryPackTypeMapping.GetIdTypeDict().TryGetValue(msgId, out var coreType))
+            {
                 return coreType;
+            }
             return msgGetter(msgId);
         }
         
