@@ -38,7 +38,7 @@ namespace Geek.Server.HotLogic.Logic.Role.Bag
         }
 
         [BindEvent]
-        public virtual async ValueTask GetBagInfo(ReqBagInfo reqMsg)
+        public virtual async Task GetBagInfo(ReqBagInfo reqMsg)
         {
             int a = Random.Shared.Next(100);
             if (a > 50)

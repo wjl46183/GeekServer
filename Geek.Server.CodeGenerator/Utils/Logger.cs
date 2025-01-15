@@ -4,7 +4,7 @@ namespace Geek.Server.CodeGenerator.Utils
 {
     public static class Logger
     {
-        public static bool IsDebug = false;
+        public static bool IsDebug = true;
         public static void LogError(this GeneratorExecutionContext context, string msg)
         {
             DiagnosticDescriptor InvalidXmlWarning = new DiagnosticDescriptor(id: "Error",

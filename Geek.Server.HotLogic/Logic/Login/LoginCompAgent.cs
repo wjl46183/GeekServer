@@ -21,7 +21,7 @@ namespace Geek.Server.HotLogic.Logic.Login
         /// </summary>
         /// <param name="eventLogin"></param>
         [BindEvent]
-        public virtual async ValueTask OnLogin(EventLogin eventLogin)
+        public virtual async Task OnLogin(EventLogin eventLogin)
         {
             if (string.IsNullOrEmpty(eventLogin.OpenId))
             {

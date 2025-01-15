@@ -30,11 +30,27 @@ namespace Geek.Server.CodeGenerator.Events
         /// 事件方法名
         /// </summary>
         public string funcName;
+
+        /// <summary>
+        /// 是否支持await
+        /// </summary>
+        public bool isAwaitable;
+
+        /// <summary>
+        /// Task<T>中的T的类型，如果是Task则为空
+        /// </summary>
+        public string taskReturnType;
+        
+        /// <summary>
+        /// Task<T>中的T的类型，如果是Task则为空
+        /// </summary>
+        public string returnType;
     }
 
     public class EventFilter : ISyntaxReceiver
     {
-        public Dictionary<string, Dictionary<int,List<EventInfo>>> EventMap { get; } = new Dictionary<string, Dictionary<int,List<EventInfo>>>();
+        public Dictionary<string, Dictionary<int, List<EventInfo>>> EventMap { get; } =
+            new Dictionary<string, Dictionary<int, List<EventInfo>>>();
 
         public List<string> errLog = new List<string>();
 
@@ -83,6 +99,16 @@ namespace Geek.Server.CodeGenerator.Events
                                             var parameterType = methodDeclaration.ParameterList.Parameters
                                                 .FirstOrDefault()
                                                 ?.Type.ToString();
+                                            
+                                            // 获取返回类型
+                                            var returnType = methodDeclaration.ReturnType.ToString();
+                                            // 判断返回类型是否是Task或Task<T>
+                                            if (returnType != "Task")
+                                            {
+                                                errLog.Add(
+                                                    $"生成事件绑定失败 返回值需要Task类型 FuncName:{funcName} 返回类型:{returnType}");
+                                                break;
+                                            }
 
                                             // 创建 EventInfo 并添加到 EventMap
                                             var eventInfo = new EventInfo
@@ -93,14 +119,13 @@ namespace Geek.Server.CodeGenerator.Events
                                                 parameterType = parameterType
                                             };
 
-                                            errLog.Add("生成事件绑定 类型:" + className.ToString() + "  函数:" + funcName +
-                                                       "  优先级:" + priority + "  事件:" + parameterType);
-
-
+                                            errLog.Add(
+                                                $"生成事件绑定 类型:{className} 函数:{funcName} 优先级:{priority} 事件:{parameterType} 返回类型:{returnType}");
                                             if (!EventMap.ContainsKey(parameterType))
                                             {
                                                 EventMap[parameterType] = new Dictionary<int, List<EventInfo>>();
                                             }
+
                                             if (!EventMap[parameterType].ContainsKey(eventInfo.priority))
                                             {
                                                 EventMap[parameterType][eventInfo.priority] = new List<EventInfo>();

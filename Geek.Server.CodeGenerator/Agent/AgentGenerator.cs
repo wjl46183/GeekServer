@@ -160,9 +160,9 @@ namespace Geek.Server.CodeGenerator.Agent
                                 context.LogError($"{fullName}.{method.Identifier.Text}【Timeout】注解只能配合【Api】或【Discard】使用");
                             }
 
-                            if (mth.IsEvent && mth.Returntype != "ValueTask")
+                            if (mth.IsEvent && mth.Returntype != "Task")
                             {
-                                context.LogError($"{fullName}.{method.Identifier.Text}【BindEvent】注解只能配合 ValueTask 返回值使用");
+                                context.LogError($"{fullName}.{method.Identifier.Text}【BindEvent】注解只能配合 Task 返回值使用");
                             }
 
                             //跳过没有标记任何注解的函数
